@@ -59,7 +59,8 @@ export function setSessionCookie(c, token) {
 }
 
 export function clearSessionCookie(c) {
-  deleteCookie(c, SESSION_COOKIE, { path: "/" });
+  const { maxAge: _maxAge, ...options } = cookieOptions();
+  deleteCookie(c, SESSION_COOKIE, options);
 }
 
 export function getSession(c) {

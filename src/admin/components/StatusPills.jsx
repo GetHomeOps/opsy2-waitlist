@@ -3,15 +3,21 @@ export function StatusPill({ status }) {
     paid: "bg-[#e7f0ea] text-[#215746]",
     pending: "bg-[#f6ead0] text-[#8a6a2f]",
     refunded: "bg-[#f4e4e1] text-[#8b4a42]",
+    canceled: "bg-[#f4e4e1] text-[#8b4a42]",
   };
 
-  const label = status === "paid" ? "Paid" : status === "pending" ? "Pending" : "Refunded";
+  const labels = {
+    paid: "Paid",
+    pending: "Pending",
+    refunded: "Canceled",
+    canceled: "Canceled",
+  };
 
   return (
     <span
       className={`inline-flex rounded-full px-2.5 py-0.5 text-[0.72rem] font-semibold ${styles[status] || "bg-black/5 text-forest-deep"}`}
     >
-      {label}
+      {labels[status] || status}
     </span>
   );
 }

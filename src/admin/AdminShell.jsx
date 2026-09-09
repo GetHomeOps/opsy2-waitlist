@@ -43,8 +43,12 @@ export function AdminShell() {
   }, [navigate]);
 
   async function logout() {
-    await adminFetch("/api/admin/logout", { method: "POST", json: {} });
-    navigate("/admin/login", { replace: true });
+    try {
+      await adminFetch("/api/admin/logout", { method: "POST", json: {} });
+    } catch {
+      // Still leave the portal so a failed request cannot keep a stale shell mounted.
+    }
+    window.location.replace("/admin/login");
   }
 
   if (!ready) {

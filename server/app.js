@@ -18,9 +18,13 @@ import {
   syncConnectedPrices,
 } from "./pricing.js";
 import {
+  confirmCheckoutSession,
+  deleteReservation,
   getReservation,
   listReservations,
   markDocsReceived,
+  refundReservation,
+  syncPaidCheckoutSessions,
   updateNotes,
 } from "./reservations.js";
 import { getStripe } from "./stripe.js";
@@ -159,6 +163,20 @@ app.post("/founding-checkout", async (c) => {
   }
 });
 
+app.post("/founding-confirm", async (c) => {
+  try {
+    const body = await c.req.json().catch(() => ({}));
+    const saved = await confirmCheckoutSession(body.session_id || body.sessionId);
+    return c.json({ ok: true, saved: Boolean(saved) });
+  } catch (error) {
+    const status = error.status || error.statusCode || 500;
+    return c.json(
+      { error: error.message },
+      status >= 400 && status < 600 ? status : 500,
+    );
+  }
+});
+
 app.post("/stripe/webhook", async (c) => {
   try {
     const signature = c.req.header("stripe-signature");
@@ -213,6 +231,18 @@ app.get("/admin/waitlist", async (c) => {
   }
 });
 
+app.post("/admin/waitlist/sync", async (c) => {
+  const unauthorized = requireAdmin(c);
+  if (unauthorized) return unauthorized;
+  try {
+    const sync = await syncPaidCheckoutSessions();
+    const result = await listReservations();
+    return c.json({ ...result, imported: sync.imported });
+  } catch (error) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
 app.get("/admin/waitlist/:id", async (c) => {
   const unauthorized = requireAdmin(c);
   if (unauthorized) return unauthorized;
@@ -244,6 +274,30 @@ app.post("/admin/waitlist/:id/docs-received", async (c) => {
     const user = await markDocsReceived(c.req.param("id"));
     if (!user) return c.json({ error: "User not found." }, 404);
     return c.json({ user });
+  } catch (error) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+app.post("/admin/waitlist/:id/refund", async (c) => {
+  const unauthorized = requireAdmin(c);
+  if (unauthorized) return unauthorized;
+  try {
+    const user = await refundReservation(c.req.param("id"));
+    if (!user) return c.json({ error: "User not found." }, 404);
+    return c.json({ user });
+  } catch (error) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+app.delete("/admin/waitlist/:id", async (c) => {
+  const unauthorized = requireAdmin(c);
+  if (unauthorized) return unauthorized;
+  try {
+    const user = await deleteReservation(c.req.param("id"));
+    if (!user) return c.json({ error: "User not found." }, 404);
+    return c.json({ ok: true, user });
   } catch (error) {
     return c.json({ error: error.message }, 500);
   }

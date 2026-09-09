@@ -1,7 +1,12 @@
 import { getDb, dbError, landingTables } from "./db.js";
 import { getStripe } from "./stripe.js";
 import { PACKAGES } from "./packages.js";
-import { markRefunded, upsertFromCheckoutSession } from "./reservations.js";
+import {
+  markCanceled,
+  paidStatusFromSession,
+  resolvePackageKey,
+  upsertFromCheckoutSession,
+} from "./reservations.js";
 
 async function alreadyProcessed(eventId) {
   const db = getDb();
@@ -23,21 +28,20 @@ async function markProcessed(event) {
   if (error) throw new Error(dbError(error));
 }
 
-function isFoundingSession(session) {
-  return (
-    session?.metadata?.product === "founding_transactions" &&
-    Boolean(PACKAGES[session?.metadata?.package])
-  );
-}
-
-function paymentStatusFromSession(session) {
-  if (session.payment_status === "paid") return "paid";
-  return "pending";
+async function isFoundingSession(session) {
+  if (session?.metadata?.product === "founding_transactions" && PACKAGES[session?.metadata?.package]) {
+    return true;
+  }
+  try {
+    return Boolean(await resolvePackageKey(session));
+  } catch {
+    return false;
+  }
 }
 
 async function handleCheckoutSession(session, forcedStatus) {
-  if (!isFoundingSession(session)) return;
-  await upsertFromCheckoutSession(session, forcedStatus || paymentStatusFromSession(session));
+  if (!(await isFoundingSession(session))) return;
+  await upsertFromCheckoutSession(session, forcedStatus || paidStatusFromSession(session));
 }
 
 async function handleRefundEvent(object) {
@@ -47,7 +51,7 @@ async function handleRefundEvent(object) {
       : object.payment_intent?.id || null;
 
   if (object.object === "charge" && object.refunded === true) {
-    await markRefunded({ paymentIntentId });
+    await markCanceled({ paymentIntentId });
   }
 }
 

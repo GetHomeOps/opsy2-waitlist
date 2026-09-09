@@ -53,6 +53,17 @@ export function initials(name) {
 export function statusLabel(status) {
   if (status === "paid") return "Paid";
   if (status === "pending") return "Pending";
-  if (status === "refunded") return "Refunded";
+  if (status === "refunded" || status === "canceled") return "Canceled";
   return status;
+}
+
+export function formatPhone(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return "—";
+  const digits = raw.replace(/\D/g, "");
+  const local = digits.length === 11 && digits.startsWith("1") ? digits.slice(1) : digits;
+  if (local.length === 10) {
+    return `(${local.slice(0, 3)}) ${local.slice(3, 6)}-${local.slice(6)}`;
+  }
+  return raw;
 }

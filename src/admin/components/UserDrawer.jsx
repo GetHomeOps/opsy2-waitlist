@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { adminFetch } from "../lib/api.js";
-import { formatDateTime, formatUsd, initials } from "../lib/format.js";
-import { IconClose, IconCopy, IconDoc, IconExternal } from "./Icons.jsx";
+import { formatDateTime, formatPhone, formatUsd, initials } from "../lib/format.js";
+import { IconClose, IconCopy, IconDoc, IconExternal, IconRefund, IconTrash } from "./Icons.jsx";
 import { StatusPill, YesNoPill } from "./StatusPills.jsx";
 
-export function UserDrawer({ user, onClose, onUpdated }) {
+export function UserDrawer({ user, onClose, onUpdated, onRefund, onDelete }) {
   const [notes, setNotes] = useState(user.internalNotes || "");
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState("");
@@ -72,6 +72,13 @@ export function UserDrawer({ user, onClose, onUpdated }) {
           value={user.email}
           copied={copied === "email"}
           onCopy={() => copy("email", user.email)}
+          copyLabel="Copy email"
+        />
+        <CopyRow
+          value={formatPhone(user.phone)}
+          copied={copied === "phone"}
+          onCopy={() => copy("phone", user.phone)}
+          copyLabel="Copy phone"
         />
 
         <section className="mt-6">
@@ -86,7 +93,7 @@ export function UserDrawer({ user, onClose, onUpdated }) {
         </section>
 
         <dl className="mt-6 space-y-4 text-sm">
-          <Row label="Amount Paid" value={`${formatUsd(user.amountPaid)} USD`} />
+          <Row label="Amount Paid" value={`${formatUsd(user.amountPaid, { centsIfNeeded: true })} USD`} />
           <Row label="Purchase Date" value={formatDateTime(user.purchasedAt)} />
           <div>
             <dt className="text-[0.78rem] text-forest-deep/50">Payment Status</dt>
@@ -161,6 +168,23 @@ export function UserDrawer({ user, onClose, onUpdated }) {
             <IconDoc className="h-4 w-4" />
             {user.firstDocumentsReceivedAt ? "Docs Received" : "Mark Docs Received"}
           </button>
+          <button
+            type="button"
+            disabled={!user.canRefund}
+            onClick={onRefund}
+            className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-forest px-4 py-2.5 text-sm font-semibold text-forest hover:bg-[#e7f0ea] disabled:opacity-50"
+          >
+            <IconRefund className="h-4 w-4" />
+            {user.paymentStatus === "canceled" ? "Canceled" : "Refund"}
+          </button>
+          <button
+            type="button"
+            onClick={onDelete}
+            className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#e3cfc9] px-4 py-2.5 text-sm font-semibold text-[#8b4a42] hover:bg-[#f4e4e1]"
+          >
+            <IconTrash className="h-4 w-4" />
+            Delete
+          </button>
         </section>
 
         <label className="mt-7 block">
@@ -189,11 +213,11 @@ function Row({ label, value }) {
   );
 }
 
-function CopyRow({ value, onCopy, copied }) {
+function CopyRow({ value, onCopy, copied, copyLabel }) {
   return (
     <div className="mt-5 flex items-center justify-center gap-2 text-sm text-forest-deep/70">
-      <span>{value}</span>
-      <button type="button" onClick={onCopy} className="text-forest" aria-label="Copy email">
+      <span>{value || "—"}</span>
+      <button type="button" onClick={onCopy} className="text-forest" aria-label={copyLabel}>
         <IconCopy className="h-4 w-4" />
       </button>
       {copied ? <span className="text-[0.7rem] text-forest">Copied</span> : null}

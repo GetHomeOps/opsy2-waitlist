@@ -64,6 +64,12 @@ export function dollarsToCents(dollars) {
   return Math.round(Number(dollars || 0) * 100);
 }
 
+export const PAID_CHECKOUT_STATUSES = new Set(["paid", "no_payment_required"]);
+
+export function isPaidCheckoutStatus(status) {
+  return PAID_CHECKOUT_STATUSES.has(status);
+}
+
 export function isRefundEligible(row) {
   return row?.payment_status === "paid" && !row?.first_documents_received_at;
 }

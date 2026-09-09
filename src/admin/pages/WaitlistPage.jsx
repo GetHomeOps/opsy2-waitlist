@@ -1,11 +1,23 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { adminFetch } from "../lib/api.js";
-import { formatDate, formatUsd, initials } from "../lib/format.js";
-import { IconCard, IconChart, IconCoins, IconSearch, IconSort, IconUsers } from "../components/Icons.jsx";
+import { formatDate, formatPhone, formatUsd, initials } from "../lib/format.js";
+import {
+  IconCard,
+  IconChart,
+  IconCoins,
+  IconRefund,
+  IconRefresh,
+  IconSearch,
+  IconSort,
+  IconTrash,
+  IconUsers,
+} from "../components/Icons.jsx";
+import { ConfirmDialog } from "../components/ConfirmDialog.jsx";
 import { StatusPill, YesNoPill } from "../components/StatusPills.jsx";
 import { UserDrawer } from "../components/UserDrawer.jsx";
 
 const PAGE_SIZE = 10;
+const TABLE_COLUMNS = 9;
 
 export function WaitlistPage() {
   const [users, setUsers] = useState([]);
@@ -18,27 +30,53 @@ export function WaitlistPage() {
   const [selectedId, setSelectedId] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
+  const [confirm, setConfirm] = useState(null);
+  const [confirmBusy, setConfirmBusy] = useState(false);
+  const didSync = useRef(false);
 
-  async function load() {
-    setLoading(true);
+  async function load({ sync = false, quiet = false } = {}) {
+    if (!quiet) setLoading(true);
     setError("");
+    if (sync) setSyncing(true);
     try {
       const params = new URLSearchParams();
       if (query) params.set("q", query);
       if (plan !== "all") params.set("plan", plan);
       if (status !== "all") params.set("status", status);
-      const data = await adminFetch(`/api/admin/waitlist?${params.toString()}`);
-      setUsers(data.users || []);
-      setKpis(data.kpis || null);
+
+      let data;
+      if (sync) {
+        try {
+          data = await adminFetch("/api/admin/waitlist/sync", { method: "POST", json: {} });
+        } catch (err) {
+          data = await adminFetch(`/api/admin/waitlist?${params.toString()}`);
+          setError(err.message);
+        }
+      } else {
+        data = await adminFetch(`/api/admin/waitlist?${params.toString()}`);
+      }
+
+      if (sync && (query || plan !== "all" || status !== "all")) {
+        const filtered = await adminFetch(`/api/admin/waitlist?${params.toString()}`);
+        setUsers(filtered.users || []);
+        setKpis(filtered.kpis || null);
+      } else {
+        setUsers(data.users || []);
+        setKpis(data.kpis || null);
+      }
     } catch (err) {
       setError(err.message);
     } finally {
-      setLoading(false);
+      if (!quiet) setLoading(false);
+      setSyncing(false);
     }
   }
 
   useEffect(() => {
-    const timeout = setTimeout(load, query ? 250 : 0);
+    const shouldSync = !didSync.current;
+    didSync.current = true;
+    const timeout = setTimeout(() => load({ sync: shouldSync }), query ? 250 : 0);
     return () => clearTimeout(timeout);
   }, [query, plan, status]);
 
@@ -66,6 +104,36 @@ export function WaitlistPage() {
 
   function onUpdated(next) {
     setUsers((current) => current.map((user) => (user.id === next.id ? next : user)));
+  }
+
+  function onDeleted(id) {
+    setUsers((current) => current.filter((user) => user.id !== id));
+    if (selectedId === id) setSelectedId(null);
+  }
+
+  async function runConfirm() {
+    if (!confirm) return;
+    setConfirmBusy(true);
+    setError("");
+    try {
+      if (confirm.type === "delete") {
+        await adminFetch(`/api/admin/waitlist/${confirm.user.id}`, { method: "DELETE" });
+        onDeleted(confirm.user.id);
+      } else {
+        const data = await adminFetch(`/api/admin/waitlist/${confirm.user.id}/refund`, {
+          method: "POST",
+          json: {},
+        });
+        onUpdated(data.user);
+      }
+      setConfirm(null);
+      await load({ quiet: true });
+    } catch (err) {
+      setError(err.message);
+      setConfirm(null);
+    } finally {
+      setConfirmBusy(false);
+    }
   }
 
   return (
@@ -97,7 +165,7 @@ export function WaitlistPage() {
             icon={<IconCoins className="h-4 w-4 text-[#c4a15f]" />}
             label="Revenue Collected"
             labelClassName="text-[#b0893e]"
-            value={kpis ? formatUsd(kpis.revenueCents) : "—"}
+            value={kpis ? formatUsd(kpis.revenueCents, { centsIfNeeded: true }) : "—"}
             hint="Through Stripe."
           />
           <KpiCard
@@ -119,7 +187,7 @@ export function WaitlistPage() {
                 setQuery(event.target.value);
                 setPage(1);
               }}
-              placeholder="Search by name or email..."
+              placeholder="Search by name, email, or phone..."
               className="w-full rounded-xl border border-[#e6e0d4] bg-white py-2.5 pl-10 pr-3 text-sm outline-none focus:border-forest"
             />
           </label>
@@ -147,7 +215,7 @@ export function WaitlistPage() {
             <option value="all">All Statuses</option>
             <option value="paid">Paid</option>
             <option value="pending">Pending</option>
-            <option value="refunded">Refunded</option>
+            <option value="canceled">Canceled</option>
           </select>
           <button
             type="button"
@@ -155,6 +223,15 @@ export function WaitlistPage() {
             className="rounded-xl px-3 py-2.5 text-sm font-medium text-forest-deep/60 hover:text-forest-deep"
           >
             Clear
+          </button>
+          <button
+            type="button"
+            disabled={syncing}
+            onClick={() => load({ sync: true })}
+            className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2.5 text-sm font-medium text-forest hover:bg-[#e7f0ea] disabled:opacity-50"
+          >
+            <IconRefresh className="h-4 w-4" />
+            {syncing ? "Syncing…" : "Sync Stripe"}
           </button>
         </div>
 
@@ -166,7 +243,7 @@ export function WaitlistPage() {
 
         <div className="mt-4 overflow-hidden rounded-2xl border border-[#e6e0d4] bg-white">
           <div className="overflow-x-auto">
-            <table className="min-w-[860px] w-full text-left text-sm">
+            <table className="min-w-[1080px] w-full text-left text-sm">
               <thead className="bg-[#f3f0e9] text-[0.72rem] font-semibold text-forest-deep/55">
                 <tr>
                   <th className="px-4 py-3">
@@ -180,24 +257,26 @@ export function WaitlistPage() {
                     </button>
                   </th>
                   <th className="px-4 py-3">Email</th>
+                  <th className="px-4 py-3">Phone</th>
                   <th className="px-4 py-3">Plan</th>
                   <th className="px-4 py-3">Amount</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3">Refund Eligible</th>
                   <th className="px-4 py-3">Purchase Date</th>
+                  <th className="px-4 py-3">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={7} className="px-4 py-10 text-center text-forest-deep/50">
-                      Loading waitlist…
+                    <td colSpan={TABLE_COLUMNS} className="px-4 py-10 text-center text-forest-deep/50">
+                      {syncing ? "Syncing paid reservations from Stripe…" : "Loading waitlist…"}
                     </td>
                   </tr>
                 ) : pageRows.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-4 py-10 text-center text-forest-deep/50">
-                      No waitlist users yet. Paid reservations will appear after Stripe checkout completes.
+                    <td colSpan={TABLE_COLUMNS} className="px-4 py-10 text-center text-forest-deep/50">
+                      No waitlist users yet. Paid reservations, including coupon checkouts, appear after Stripe checkout completes.
                     </td>
                   </tr>
                 ) : (
@@ -218,8 +297,9 @@ export function WaitlistPage() {
                         </div>
                       </td>
                       <td className="px-4 py-3 text-forest-deep/75">{user.email}</td>
+                      <td className="px-4 py-3 text-forest-deep/75">{formatPhone(user.phone)}</td>
                       <td className="px-4 py-3">{user.planName}</td>
-                      <td className="px-4 py-3">{formatUsd(user.amountPaid)}</td>
+                      <td className="px-4 py-3">{formatUsd(user.amountPaid, { centsIfNeeded: true })}</td>
                       <td className="px-4 py-3">
                         <StatusPill status={user.paymentStatus} />
                       </td>
@@ -227,6 +307,33 @@ export function WaitlistPage() {
                         <YesNoPill value={user.refundEligible} />
                       </td>
                       <td className="px-4 py-3 text-forest-deep/75">{formatDate(user.purchasedAt)}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            title="Refund"
+                            disabled={!user.canRefund}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              setConfirm({ type: "refund", user });
+                            }}
+                            className="rounded-lg p-1.5 text-forest hover:bg-[#e7f0ea] disabled:opacity-30"
+                          >
+                            <IconRefund className="h-4 w-4" />
+                          </button>
+                          <button
+                            type="button"
+                            title="Delete"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              setConfirm({ type: "delete", user });
+                            }}
+                            className="rounded-lg p-1.5 text-[#8b4a42] hover:bg-[#f4e4e1]"
+                          >
+                            <IconTrash className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   ))
                 )}
@@ -265,6 +372,28 @@ export function WaitlistPage() {
           user={selected}
           onClose={() => setSelectedId(null)}
           onUpdated={onUpdated}
+          onRefund={() => setConfirm({ type: "refund", user: selected })}
+          onDelete={() => setConfirm({ type: "delete", user: selected })}
+        />
+      ) : null}
+
+      {confirm ? (
+        <ConfirmDialog
+          title={confirm.type === "delete" ? "Delete this user?" : "Refund this reservation?"}
+          body={
+            confirm.type === "delete"
+              ? `Remove ${confirm.user.agentName} from the waitlist. This does not refund the Stripe payment.`
+              : Number(confirm.user.amountPaid || 0) > 0
+                ? `Refund ${formatUsd(confirm.user.amountPaid, { centsIfNeeded: true })} to ${confirm.user.agentName}. They will stay on the waitlist and be flagged as canceled.`
+                : `There is no Stripe charge to refund. ${confirm.user.agentName} will stay on the waitlist and be flagged as canceled.`
+          }
+          confirmLabel={confirm.type === "delete" ? "Delete" : "Refund"}
+          danger={confirm.type === "delete"}
+          busy={confirmBusy}
+          onCancel={() => {
+            if (!confirmBusy) setConfirm(null);
+          }}
+          onConfirm={runConfirm}
         />
       ) : null}
     </div>
