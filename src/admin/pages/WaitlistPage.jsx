@@ -155,7 +155,7 @@ export function WaitlistPage() {
             icon={<IconChart className="h-4 w-4" />}
             label="Reservations Remaining"
             value={kpis ? `${kpis.remainingTransactions} of ${kpis.capacity}` : "—"}
-            hint={kpis ? `${kpis.reservedPercent}% reserved.` : "Founding inventory."}
+            hint={kpis ? `${kpis.reservedPercent}% reserved.` : "Paid waitlist spots."}
           />
         </section>
 

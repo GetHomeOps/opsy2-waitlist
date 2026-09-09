@@ -92,19 +92,20 @@ export function paidStatusFromSession(session) {
 export function computeKpis(rows) {
   const signups = rows.length;
   const paid = rows.filter((row) => normalizeStatus(row.payment_status) === "paid");
-  const reserved = paid.reduce((sum, row) => sum + Number(row.quantity_reserved || 0), 0);
+  const reservedAgents = paid.length;
+  const reservedTransactions = paid.reduce((sum, row) => sum + Number(row.quantity_reserved || 0), 0);
   const revenueCents = paid.reduce((sum, row) => sum + Number(row.amount_paid || 0), 0);
-  const remaining = Math.max(FOUNDING_CAPACITY - reserved, 0);
+  const remaining = Math.max(FOUNDING_CAPACITY - reservedAgents, 0);
 
   return {
     waitlistSignups: signups,
     paidAgents: paid.length,
     revenueCents,
-    reservedTransactions: reserved,
+    reservedTransactions,
     remainingTransactions: remaining,
     capacity: FOUNDING_CAPACITY,
     reservedPercent: FOUNDING_CAPACITY
-      ? Math.round((reserved / FOUNDING_CAPACITY) * 100)
+      ? Math.round((reservedAgents / FOUNDING_CAPACITY) * 100)
       : 0,
   };
 }
