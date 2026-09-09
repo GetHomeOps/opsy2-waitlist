@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { adminFetch } from "../lib/api.js";
 import { formatDateTime, formatPhone, formatUsd, initials } from "../lib/format.js";
-import { IconClose, IconCopy, IconDoc, IconExternal, IconRefund, IconTrash } from "./Icons.jsx";
+import { IconClose, IconCopy, IconDoc, IconExternal, IconRefund } from "./Icons.jsx";
 import { StatusPill, YesNoPill } from "./StatusPills.jsx";
 
-export function UserDrawer({ user, onClose, onUpdated, onRefund, onDelete }) {
+export function UserDrawer({ user, onClose, onUpdated, onRefund }) {
   const [notes, setNotes] = useState(user.internalNotes || "");
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState("");
@@ -176,14 +176,6 @@ export function UserDrawer({ user, onClose, onUpdated, onRefund, onDelete }) {
           >
             <IconRefund className="h-4 w-4" />
             {user.paymentStatus === "canceled" ? "Canceled" : "Refund"}
-          </button>
-          <button
-            type="button"
-            onClick={onDelete}
-            className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#e3cfc9] px-4 py-2.5 text-sm font-semibold text-[#8b4a42] hover:bg-[#f4e4e1]"
-          >
-            <IconTrash className="h-4 w-4" />
-            Delete
           </button>
         </section>
 

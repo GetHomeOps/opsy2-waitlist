@@ -174,17 +174,6 @@ export function IconSort({ className = "h-3 w-3" }) {
   );
 }
 
-export function IconTrash({ className = "h-4 w-4" }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M5 7h14" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-      <path d="M10 7V5.5A1.5 1.5 0 0 1 11.5 4h1A1.5 1.5 0 0 1 14 5.5V7" stroke="currentColor" strokeWidth="1.7" />
-      <path d="M8 7h8l-.7 12.2A1.5 1.5 0 0 1 13.8 20.5h-3.6a1.5 1.5 0 0 1-1.5-1.3L8 7Z" stroke="currentColor" strokeWidth="1.7" />
-      <path d="M10.5 11v6M13.5 11v6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 export function IconRefund({ className = "h-4 w-4" }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">

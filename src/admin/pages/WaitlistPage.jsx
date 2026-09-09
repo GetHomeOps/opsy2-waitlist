@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { adminFetch } from "../lib/api.js";
 import { formatDate, formatPhone, formatUsd, initials } from "../lib/format.js";
 import {
@@ -9,7 +9,6 @@ import {
   IconRefresh,
   IconSearch,
   IconSort,
-  IconTrash,
   IconUsers,
 } from "../components/Icons.jsx";
 import { ConfirmDialog } from "../components/ConfirmDialog.jsx";
@@ -33,10 +32,8 @@ export function WaitlistPage() {
   const [syncing, setSyncing] = useState(false);
   const [confirm, setConfirm] = useState(null);
   const [confirmBusy, setConfirmBusy] = useState(false);
-  const didSync = useRef(false);
 
   async function load({ sync = false, quiet = false } = {}) {
-    const startedAt = Date.now();
     if (!quiet) setLoading(true);
     setError("");
     if (sync) setSyncing(true);
@@ -49,7 +46,10 @@ export function WaitlistPage() {
       let data;
       if (sync) {
         try {
-          data = await adminFetch("/api/admin/waitlist/sync", { method: "POST", json: {} });
+          data = await adminFetch(`/api/admin/waitlist/sync?${params.toString()}`, {
+            method: "POST",
+            json: {},
+          });
         } catch (err) {
           data = await adminFetch(`/api/admin/waitlist?${params.toString()}`);
           setError(err.message);
@@ -58,32 +58,18 @@ export function WaitlistPage() {
         data = await adminFetch(`/api/admin/waitlist?${params.toString()}`);
       }
 
-      if (sync && (query || plan !== "all" || status !== "all")) {
-        const filtered = await adminFetch(`/api/admin/waitlist?${params.toString()}`);
-        setUsers(filtered.users || []);
-        setKpis(filtered.kpis || null);
-      } else {
-        setUsers(data.users || []);
-        setKpis(data.kpis || null);
-      }
+      setUsers(data.users || []);
+      setKpis(data.kpis || null);
     } catch (err) {
       setError(err.message);
     } finally {
-      if (!quiet) {
-        const elapsed = Date.now() - startedAt;
-        if (elapsed < 450) {
-          await new Promise((resolve) => setTimeout(resolve, 450 - elapsed));
-        }
-        setLoading(false);
-      }
+      if (!quiet) setLoading(false);
       setSyncing(false);
     }
   }
 
   useEffect(() => {
-    const shouldSync = !didSync.current;
-    didSync.current = true;
-    const timeout = setTimeout(() => load({ sync: shouldSync }), query ? 250 : 0);
+    const timeout = setTimeout(() => load(), query ? 250 : 0);
     return () => clearTimeout(timeout);
   }, [query, plan, status]);
 
@@ -113,26 +99,16 @@ export function WaitlistPage() {
     setUsers((current) => current.map((user) => (user.id === next.id ? next : user)));
   }
 
-  function onDeleted(id) {
-    setUsers((current) => current.filter((user) => user.id !== id));
-    if (selectedId === id) setSelectedId(null);
-  }
-
   async function runConfirm() {
     if (!confirm) return;
     setConfirmBusy(true);
     setError("");
     try {
-      if (confirm.type === "delete") {
-        await adminFetch(`/api/admin/waitlist/${confirm.user.id}`, { method: "DELETE" });
-        onDeleted(confirm.user.id);
-      } else {
-        const data = await adminFetch(`/api/admin/waitlist/${confirm.user.id}/refund`, {
-          method: "POST",
-          json: {},
-        });
-        onUpdated(data.user);
-      }
+      const data = await adminFetch(`/api/admin/waitlist/${confirm.id}/refund`, {
+        method: "POST",
+        json: {},
+      });
+      onUpdated(data.user);
       setConfirm(null);
       await load({ quiet: true });
     } catch (err) {
@@ -329,22 +305,11 @@ export function WaitlistPage() {
                             disabled={!user.canRefund}
                             onClick={(event) => {
                               event.stopPropagation();
-                              setConfirm({ type: "refund", user });
+                              setConfirm(user);
                             }}
                             className="rounded-lg p-1.5 text-forest hover:bg-[#e7f0ea] disabled:opacity-30"
                           >
                             <IconRefund className="h-4 w-4" />
-                          </button>
-                          <button
-                            type="button"
-                            title="Delete"
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              setConfirm({ type: "delete", user });
-                            }}
-                            className="rounded-lg p-1.5 text-[#8b4a42] hover:bg-[#f4e4e1]"
-                          >
-                            <IconTrash className="h-4 w-4" />
                           </button>
                         </div>
                       </td>
@@ -386,23 +351,19 @@ export function WaitlistPage() {
           user={selected}
           onClose={() => setSelectedId(null)}
           onUpdated={onUpdated}
-          onRefund={() => setConfirm({ type: "refund", user: selected })}
-          onDelete={() => setConfirm({ type: "delete", user: selected })}
+          onRefund={() => setConfirm(selected)}
         />
       ) : null}
 
       {confirm ? (
         <ConfirmDialog
-          title={confirm.type === "delete" ? "Delete this user?" : "Refund this reservation?"}
+          title="Refund this reservation?"
           body={
-            confirm.type === "delete"
-              ? `Remove ${confirm.user.agentName} from the waitlist. This does not refund the Stripe payment.`
-              : Number(confirm.user.amountPaid || 0) > 0
-                ? `Refund ${formatUsd(confirm.user.amountPaid, { centsIfNeeded: true })} to ${confirm.user.agentName}. They will stay on the waitlist and be flagged as canceled.`
-                : `There is no Stripe charge to refund. ${confirm.user.agentName} will stay on the waitlist and be flagged as canceled.`
+            Number(confirm.amountPaid || 0) > 0
+              ? `Refund ${formatUsd(confirm.amountPaid, { centsIfNeeded: true })} to ${confirm.agentName}. They will stay on the waitlist and be flagged as canceled.`
+              : `There is no Stripe charge to refund. ${confirm.agentName} will stay on the waitlist and be flagged as canceled.`
           }
-          confirmLabel={confirm.type === "delete" ? "Delete" : "Refund"}
-          danger={confirm.type === "delete"}
+          confirmLabel="Refund"
           busy={confirmBusy}
           onCancel={() => {
             if (!confirmBusy) setConfirm(null);
@@ -458,7 +419,6 @@ function WaitlistSkeleton({ rows = 6 }) {
         <td className="px-4 py-3">
           <div className="flex items-center gap-1.5">
             <Bone className="h-7 w-7 rounded-lg" delay={delay + 200} />
-            <Bone className="h-7 w-7 rounded-lg" delay={delay + 220} />
           </div>
         </td>
       </tr>

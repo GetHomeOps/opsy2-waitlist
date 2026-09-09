@@ -19,7 +19,6 @@ import {
 } from "./pricing.js";
 import {
   confirmCheckoutSession,
-  deleteReservation,
   getReservation,
   listReservations,
   markDocsReceived,
@@ -236,7 +235,12 @@ app.post("/admin/waitlist/sync", async (c) => {
   if (unauthorized) return unauthorized;
   try {
     const sync = await syncPaidCheckoutSessions();
-    const result = await listReservations();
+    const url = new URL(c.req.url);
+    const result = await listReservations({
+      q: url.searchParams.get("q") || "",
+      plan: url.searchParams.get("plan") || "",
+      status: url.searchParams.get("status") || "",
+    });
     return c.json({ ...result, imported: sync.imported });
   } catch (error) {
     return c.json({ error: error.message }, 500);
@@ -286,18 +290,6 @@ app.post("/admin/waitlist/:id/refund", async (c) => {
     const user = await refundReservation(c.req.param("id"));
     if (!user) return c.json({ error: "User not found." }, 404);
     return c.json({ user });
-  } catch (error) {
-    return c.json({ error: error.message }, 500);
-  }
-});
-
-app.delete("/admin/waitlist/:id", async (c) => {
-  const unauthorized = requireAdmin(c);
-  if (unauthorized) return unauthorized;
-  try {
-    const user = await deleteReservation(c.req.param("id"));
-    if (!user) return c.json({ error: "User not found." }, 404);
-    return c.json({ ok: true, user });
   } catch (error) {
     return c.json({ error: error.message }, 500);
   }

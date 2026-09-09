@@ -114,6 +114,7 @@ export async function listReservations({ q = "", plan = "", status = "" } = {}) 
   const { data, error } = await db
     .from(landingTables.reservations)
     .select("*")
+    .is("deleted_at", null)
     .order("purchased_at", { ascending: false, nullsFirst: false });
   if (error) throw new Error(dbError(error));
 
@@ -140,17 +141,11 @@ export async function listReservations({ q = "", plan = "", status = "" } = {}) 
 }
 
 export async function getReservation(id) {
-  const db = getDb();
-  const { data, error } = await db
-    .from(landingTables.reservations)
-    .select("*")
-    .eq("id", id)
-    .maybeSingle();
-  if (error) throw new Error(dbError(error));
-  return data ? serializeReservation(data) : null;
+  const row = await getReservationRow(id);
+  return row ? serializeReservation(row) : null;
 }
 
-async function getReservationRow(id) {
+async function getReservationRow(id, { includeDeleted = false } = {}) {
   const db = getDb();
   const { data, error } = await db
     .from(landingTables.reservations)
@@ -158,7 +153,8 @@ async function getReservationRow(id) {
     .eq("id", id)
     .maybeSingle();
   if (error) throw new Error(dbError(error));
-  return data || null;
+  if (!data || (!includeDeleted && data.deleted_at)) return null;
+  return data;
 }
 
 export async function updateNotes(id, notes) {
@@ -254,10 +250,12 @@ export async function upsertFromCheckoutSession(session, paymentStatus) {
   const db = getDb();
   const { data: existing, error: findError } = await db
     .from(landingTables.reservations)
-    .select("id, payment_status, refunded_at, purchased_at")
+    .select("id, payment_status, refunded_at, purchased_at, deleted_at")
     .eq("stripe_checkout_session_id", session.id)
     .maybeSingle();
   if (findError) throw new Error(dbError(findError));
+
+  if (existing?.deleted_at) return null;
 
   if (existing) {
     const alreadyCanceled = normalizeStatus(existing.payment_status) === "canceled" || existing.refunded_at;
@@ -299,11 +297,21 @@ export async function confirmCheckoutSession(sessionId) {
   return upsertFromCheckoutSession(session, "paid");
 }
 
+async function knownCheckoutSessionIds() {
+  const db = getDb();
+  const { data, error } = await db
+    .from(landingTables.reservations)
+    .select("stripe_checkout_session_id")
+    .not("stripe_checkout_session_id", "is", null);
+  if (error) throw new Error(dbError(error));
+  return new Set((data || []).map((row) => row.stripe_checkout_session_id));
+}
+
 export async function syncPaidCheckoutSessions() {
   if (!hasStripe()) return { imported: 0 };
 
   const stripe = getStripe();
-  const priceMap = await priceIdToPackageMap();
+  const [priceMap, knownIds] = await Promise.all([priceIdToPackageMap(), knownCheckoutSessionIds()]);
   let imported = 0;
   let startingAfter;
 
@@ -311,19 +319,23 @@ export async function syncPaidCheckoutSessions() {
     const page = await stripe.checkout.sessions.list({
       limit: 100,
       status: "complete",
-      expand: ["data.line_items", "data.customer"],
       ...(startingAfter ? { starting_after: startingAfter } : {}),
     });
 
     for (const session of page.data) {
       if (!isPaidCheckoutStatus(session.payment_status)) continue;
+      if (knownIds.has(session.id)) continue;
+
       const packageKey = await resolvePackageKey(session, priceMap);
       if (!packageKey) continue;
       const saved = await upsertFromCheckoutSession(
         { ...session, metadata: { ...session.metadata, package: packageKey } },
         "paid",
       );
-      if (saved) imported += 1;
+      if (saved) {
+        imported += 1;
+        knownIds.add(session.id);
+      }
     }
 
     startingAfter = page.has_more ? page.data[page.data.length - 1]?.id : null;
@@ -391,16 +403,6 @@ export async function refundReservation(id) {
   }
 
   return setCanceled(existing);
-}
-
-export async function deleteReservation(id) {
-  const existing = await getReservationRow(id);
-  if (!existing) return null;
-
-  const db = getDb();
-  const { error } = await db.from(landingTables.reservations).delete().eq("id", id);
-  if (error) throw new Error(dbError(error));
-  return serializeReservation(existing);
 }
 
 export const markRefunded = markCanceled;
