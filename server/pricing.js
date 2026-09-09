@@ -1,6 +1,6 @@
 import { getDb, dbError, landingTables } from "./db.js";
 import { getStripe } from "./stripe.js";
-import { PACKAGES, PACKAGE_KEYS, centsToDollars } from "./packages.js";
+import { PACKAGES, PACKAGE_KEYS, centsToDollars, dollarsToCents } from "./packages.js";
 
 function serializePlan(row) {
   const catalog = PACKAGES[row.package_key];
@@ -8,7 +8,9 @@ function serializePlan(row) {
   const displayPrice = row.display_price;
   const connected = Boolean(row.stripe_price_id);
   const matches =
-    connected && stripeAmount != null ? Number(displayPrice) === Number(stripeAmount) : true;
+    connected && stripeAmount != null
+      ? dollarsToCents(displayPrice) === Number(stripeAmount)
+      : true;
 
   return {
     id: row.id,
@@ -17,7 +19,7 @@ function serializePlan(row) {
     tagline: row.tagline || catalog?.tagline,
     transactionCount: row.transaction_count,
     displayPrice,
-    displayPriceDollars: centsToDollars(displayPrice),
+    displayPriceDollars: Number(displayPrice),
     stripePriceId: row.stripe_price_id,
     stripeAmount,
     stripeAmountDollars: stripeAmount == null ? null : centsToDollars(stripeAmount),
@@ -46,12 +48,14 @@ export async function getPublicPricing() {
   return plans
     .filter((plan) => plan.isActive)
     .map((plan) => {
-      const amountCents =
-        plan.connected && plan.stripeAmount != null ? plan.stripeAmount : plan.displayPrice;
+      const amount =
+        plan.connected && plan.stripeAmount != null
+          ? centsToDollars(plan.stripeAmount)
+          : Number(plan.displayPrice);
       return {
         key: plan.packageKey,
         transactionCount: plan.transactionCount,
-        amount: centsToDollars(amountCents),
+        amount,
       };
     });
 }
@@ -89,7 +93,7 @@ export async function connectStripePrice(packageKey, stripePriceId) {
       stripe_price_id: price.id,
       stripe_amount: price.unit_amount,
       stripe_currency: price.currency,
-      display_price: price.unit_amount,
+      display_price: centsToDollars(price.unit_amount),
       last_synced_at: new Date().toISOString(),
     })
     .eq("package_key", packageKey)
@@ -116,7 +120,7 @@ export async function syncConnectedPrices() {
       .update({
         stripe_amount: price.unit_amount,
         stripe_currency: price.currency,
-        display_price: price.unit_amount,
+        display_price: centsToDollars(price.unit_amount),
         last_synced_at: new Date().toISOString(),
       })
       .eq("package_key", plan.packageKey)

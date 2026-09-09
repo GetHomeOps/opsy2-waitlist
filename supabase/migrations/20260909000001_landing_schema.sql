@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS landing.pricing (
   display_name text NOT NULL,
   tagline text NOT NULL,
   stripe_price_id text,
-  display_price integer NOT NULL CHECK (display_price >= 0),
+  display_price integer NOT NULL CHECK (display_price >= 0), -- USD dollars, not cents
   stripe_amount integer,
   stripe_currency text NOT NULL DEFAULT 'usd',
   is_active boolean NOT NULL DEFAULT true,
@@ -154,9 +154,9 @@ END $$;
 INSERT INTO landing.pricing (
   package_key, transaction_count, display_name, tagline, display_price, is_active
 ) VALUES
-  ('one', 1, 'One Transaction', 'For your next closing', 9900, true),
-  ('three', 3, 'Three Transactions', 'Most popular', 26700, true),
-  ('five', 5, 'Five Transactions', 'Best value', 39500, true)
+  ('one', 1, 'One Transaction', 'For your next closing', 99, true),
+  ('three', 3, 'Three Transactions', 'Most popular', 267, true),
+  ('five', 5, 'Five Transactions', 'Best value', 395, true)
 ON CONFLICT (package_key) DO NOTHING;
 
 DROP TABLE IF EXISTS public.founding_pricing CASCADE;

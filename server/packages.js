@@ -7,6 +7,7 @@ export const PACKAGES = {
     displayName: "One Transaction",
     tagline: "For your next closing",
     fallbackPriceCents: 9900,
+    fallbackPriceDollars: 99,
   },
   three: {
     key: "three",
@@ -14,6 +15,7 @@ export const PACKAGES = {
     displayName: "Three Transactions",
     tagline: "Most popular",
     fallbackPriceCents: 26700,
+    fallbackPriceDollars: 267,
   },
   five: {
     key: "five",
@@ -21,6 +23,7 @@ export const PACKAGES = {
     displayName: "Five Transactions",
     tagline: "Best value",
     fallbackPriceCents: 39500,
+    fallbackPriceDollars: 395,
   },
 };
 
@@ -32,6 +35,10 @@ export function isPackageKey(value) {
 
 export function centsToDollars(cents) {
   return Math.round(Number(cents || 0) / 100);
+}
+
+export function dollarsToCents(dollars) {
+  return Math.round(Number(dollars || 0) * 100);
 }
 
 export function isRefundEligible(row) {

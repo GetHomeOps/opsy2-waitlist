@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { adminFetch } from "../lib/api.js";
-import { formatDateTime, formatUsd } from "../lib/format.js";
+import { formatDateTime, formatDollars, formatUsd } from "../lib/format.js";
 import {
   IconCheck,
   IconCopy,
@@ -17,7 +17,7 @@ const FALLBACK_PLANS = [
     displayName: "One Transaction",
     tagline: "For your next closing",
     transactionCount: 1,
-    displayPrice: 9900,
+    displayPrice: 99,
     stripePriceId: null,
     stripeAmount: null,
     lastSyncedAt: null,
@@ -29,7 +29,7 @@ const FALLBACK_PLANS = [
     displayName: "Three Transactions",
     tagline: "Most popular",
     transactionCount: 3,
-    displayPrice: 26700,
+    displayPrice: 267,
     stripePriceId: null,
     stripeAmount: null,
     lastSyncedAt: null,
@@ -41,7 +41,7 @@ const FALLBACK_PLANS = [
     displayName: "Five Transactions",
     tagline: "Best value",
     transactionCount: 5,
-    displayPrice: 39500,
+    displayPrice: 395,
     stripePriceId: null,
     stripeAmount: null,
     lastSyncedAt: null,
@@ -155,7 +155,7 @@ export function PricingPage() {
                     {plan.transactionCount} transaction{plan.transactionCount === 1 ? "" : "s"}
                   </p>
                   <p className="mt-3 font-serif text-[2.4rem] font-semibold leading-none">
-                    {formatUsd(plan.displayPrice)}
+                    {formatDollars(plan.displayPrice)}
                   </p>
                   <p className="mt-2 text-sm text-[#b0893e]">{plan.tagline}</p>
                 </div>
@@ -223,7 +223,7 @@ export function PricingPage() {
             ) : plan.connected ? (
               <div className="flex items-center gap-2 border-t border-[#eadfc6] bg-[#f8f1de] px-5 py-2.5 text-sm text-[#7a6128]">
                 <IconWarn className="h-4 w-4" />
-                Website displays {formatUsd(plan.displayPrice)} but Stripe will charge{" "}
+                Website displays {formatDollars(plan.displayPrice)} but Stripe will charge{" "}
                 {formatUsd(plan.stripeAmount)}.
               </div>
             ) : (

@@ -10,6 +10,10 @@ export function formatUsd(cents, { centsIfNeeded = false } = {}) {
   }).format(value);
 }
 
+export function formatDollars(dollars, options = {}) {
+  return formatUsd(Math.round(Number(dollars || 0) * 100), options);
+}
+
 export function formatDate(value) {
   if (!value) return "—";
   return new Intl.DateTimeFormat("en-US", {

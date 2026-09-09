@@ -8,7 +8,7 @@ import {
   verifyAdminPassword,
 } from "./auth.js";
 import { appUrl, hasStripe, hasSupabase } from "./env.js";
-import { centsToDollars, isPackageKey, PACKAGE_KEYS, PACKAGES } from "./packages.js";
+import { isPackageKey, PACKAGE_KEYS, PACKAGES } from "./packages.js";
 import {
   connectStripePrice,
   getPricingByKey,
@@ -43,7 +43,7 @@ app.get("/founding-pricing", async (c) => {
         PACKAGE_KEYS.map((key) => ({
           key,
           transactionCount: PACKAGES[key].transactionCount,
-          amount: centsToDollars(PACKAGES[key].fallbackPriceCents),
+          amount: PACKAGES[key].fallbackPriceDollars,
         })),
       );
     }
