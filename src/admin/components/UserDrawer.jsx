@@ -75,7 +75,7 @@ export function UserDrawer({ user, onClose, onUpdated }) {
         />
 
         <section className="mt-6">
-          <h3 className="text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-forest-deep/45">
+          <h3 className="text-[0.72rem] font-semibold text-forest-deep/45">
             Selected Plan
           </h3>
           <p className="mt-2 font-serif text-2xl font-semibold">{user.planName}</p>
@@ -119,7 +119,7 @@ export function UserDrawer({ user, onClose, onUpdated }) {
         </dl>
 
         <section className="mt-7">
-          <h3 className="text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-forest-deep/45">
+          <h3 className="text-[0.72rem] font-semibold text-forest-deep/45">
             Stripe Details
           </h3>
           <div className="mt-3 space-y-3">
@@ -164,7 +164,7 @@ export function UserDrawer({ user, onClose, onUpdated }) {
         </section>
 
         <label className="mt-7 block">
-          <span className="text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-forest-deep/45">
+          <span className="text-[0.72rem] font-semibold text-forest-deep/45">
             Notes
           </span>
           <textarea
@@ -204,7 +204,7 @@ function CopyRow({ value, onCopy, copied }) {
 function IdRow({ label, value, onCopy, copied }) {
   return (
     <div className="rounded-xl border border-[#e6e0d4] bg-white px-3 py-2">
-      <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-forest-deep/40">
+      <p className="text-[0.68rem] font-semibold text-forest-deep/40">
         {label}
       </p>
       <div className="mt-1 flex items-center gap-2">

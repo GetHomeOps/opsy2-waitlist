@@ -134,7 +134,10 @@ export async function markDocsReceived(id) {
 export async function upsertFromCheckoutSession(session, paymentStatus) {
   const packageKey = session.metadata?.package;
   const catalog = PACKAGES[packageKey];
-  const email = session.customer_details?.email || session.customer_email;
+  const email =
+    session.customer_details?.email ||
+    session.customer_email ||
+    session.metadata?.customer_email;
   if (!email || !catalog) return null;
 
   const quantity = Number(session.metadata?.transaction_count) || catalog.transactionCount;
@@ -144,9 +147,9 @@ export async function upsertFromCheckoutSession(session, paymentStatus) {
       : null;
 
   const row = {
-    agent_name: session.customer_details?.name || null,
+    agent_name: session.customer_details?.name || session.metadata?.customer_name || null,
     email,
-    phone: session.customer_details?.phone || null,
+    phone: session.customer_details?.phone || session.metadata?.customer_phone || null,
     package: packageKey,
     quantity_reserved: quantity,
     amount_paid: session.amount_total ?? catalog.fallbackPriceCents,

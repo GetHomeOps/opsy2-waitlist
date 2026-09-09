@@ -9,7 +9,7 @@ export async function fetchFoundingPricing() {
   }
 }
 
-export async function handleCheckout(plan) {
+export async function handleCheckout(plan, details = {}) {
   const params = new URLSearchParams(window.location.search);
 
   const res = await fetch("/api/founding-checkout", {
@@ -17,6 +17,10 @@ export async function handleCheckout(plan) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       package: plan,
+      name: details.name,
+      email: details.email,
+      phone: details.phone,
+      promoCode: details.promoCode,
       utm_source: params.get("utm_source") || undefined,
       utm_medium: params.get("utm_medium") || undefined,
       utm_campaign: params.get("utm_campaign") || undefined,

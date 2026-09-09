@@ -35,23 +35,13 @@ export function HowItWorksSection() {
         className="min-h-[100svh] lg:min-h-[860px]"
         imageClassName="saturate-[.78] brightness-[1.06]"
         overlay={
-          <>
-            <div
-              className="pointer-events-none absolute inset-0 bg-cream/40"
-              aria-hidden="true"
-            />
-            <div
-              className="pointer-events-none absolute inset-x-0 bottom-0 h-3 bg-cream md:h-4"
-              aria-hidden="true"
-            />
-            <div
-              className="pointer-events-none absolute inset-x-0 bottom-3 h-24 bg-gradient-to-b from-transparent to-cream md:bottom-4 md:h-36"
-              aria-hidden="true"
-            />
-          </>
+          <div
+            className="pointer-events-none absolute inset-0 bg-cream/40"
+            aria-hidden="true"
+          />
         }
       >
-        <div className="mx-auto flex min-h-[100svh] w-full max-w-[1440px] flex-col justify-start px-6 pt-12 pb-28 md:px-10 md:pb-24 lg:min-h-[860px] lg:px-16 lg:pt-14 lg:pb-16">
+        <div className="mx-auto flex min-h-[100svh] w-full max-w-[1440px] flex-col justify-start px-6 py-12 md:px-10 lg:min-h-[860px] lg:px-16 lg:py-14">
           <div className="rise-in max-w-[38rem] rounded-2xl bg-cream/80 px-5 py-4 text-left shadow-[0_8px_20px_rgba(24,55,47,0.06)] backdrop-blur-[2px] md:rounded-none md:bg-transparent md:px-0 md:py-0 md:shadow-none md:backdrop-blur-none">
             <h2
               id="how-it-works-heading"

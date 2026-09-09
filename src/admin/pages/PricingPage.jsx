@@ -209,8 +209,8 @@ export function PricingPage() {
               </div>
 
               <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
-                <label className="block text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-forest-deep/45">
-                  Stripe product
+                <label className="block text-[0.72rem] font-semibold text-forest-deep/45">
+                  Stripe Product
                   <select
                     value={plan.stripePriceId || ""}
                     disabled={pricesLoading || savingKey === plan.packageKey}
@@ -239,7 +239,7 @@ export function PricingPage() {
                   <span className="font-medium">{plan.connected ? "Connected" : "Not connected"}</span>
                 </div>
 
-                <label className="block text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-forest-deep/45">
+                <label className="block text-[0.72rem] font-semibold text-forest-deep/45">
                   Stripe Amount
                   <span className="mt-1.5 block rounded-xl border border-[#e6e0d4] bg-[#fbfaf6] px-3 py-2 font-serif text-lg font-semibold normal-case tracking-normal text-forest-deep">
                     {plan.stripeAmount == null ? "—" : formatUsd(plan.stripeAmount, { centsIfNeeded: true })}

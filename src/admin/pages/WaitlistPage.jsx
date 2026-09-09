@@ -167,7 +167,7 @@ export function WaitlistPage() {
         <div className="mt-4 overflow-hidden rounded-2xl border border-[#e6e0d4] bg-white">
           <div className="overflow-x-auto">
             <table className="min-w-[860px] w-full text-left text-sm">
-              <thead className="bg-[#f3f0e9] text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-forest-deep/55">
+              <thead className="bg-[#f3f0e9] text-[0.72rem] font-semibold text-forest-deep/55">
                 <tr>
                   <th className="px-4 py-3">
                     <button

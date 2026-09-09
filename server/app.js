@@ -53,13 +53,59 @@ app.get("/founding-pricing", async (c) => {
   }
 });
 
+function field(value, max) {
+  return String(value ?? "").trim().slice(0, max);
+}
+
+function isValidEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+async function resolvePromotionCode(stripe, rawCode) {
+  const code = field(rawCode, 64);
+  if (!code) return null;
+
+  const result = await stripe.promotionCodes.list({
+    code,
+    active: true,
+    limit: 1,
+  });
+  if (!result.data[0]) {
+    const error = new Error("That promo code is not valid.");
+    error.status = 400;
+    throw error;
+  }
+  return result.data[0];
+}
+
+async function upsertCheckoutCustomer(stripe, { name, email, phone, metadata }) {
+  const existing = await stripe.customers.list({ email, limit: 1 });
+  const payload = { name, email, phone, metadata };
+  if (existing.data[0]) {
+    return stripe.customers.update(existing.data[0].id, payload);
+  }
+  return stripe.customers.create(payload);
+}
+
 app.post("/founding-checkout", async (c) => {
   try {
     const body = await c.req.json().catch(() => ({}));
     const packageKey = String(body.package || "").toLowerCase();
+    const name = field(body.name, 120);
+    const email = field(body.email, 254).toLowerCase();
+    const phone = field(body.phone, 40);
 
     if (!isPackageKey(packageKey)) {
       return c.json({ error: "Invalid package. Use one, three, or five." }, 400);
+    }
+    if (name.length < 2) {
+      return c.json({ error: "Please enter your name." }, 400);
+    }
+    if (!isValidEmail(email)) {
+      return c.json({ error: "Please enter a valid email." }, 400);
+    }
+    if (phone.replace(/\D/g, "").length < 10) {
+      return c.json({ error: "Please enter a valid phone number." }, 400);
     }
 
     const plan = await getPricingByKey(packageKey);
@@ -73,6 +119,9 @@ app.post("/founding-checkout", async (c) => {
       product: "founding_transactions",
       package: packageKey,
       transaction_count: String(plan.transactionCount || catalog.transactionCount),
+      customer_name: name,
+      customer_email: email,
+      customer_phone: phone,
     };
 
     if (body.utm_source) metadata.utm_source = String(body.utm_source).slice(0, 120);
@@ -81,20 +130,32 @@ app.post("/founding-checkout", async (c) => {
     if (body.referrer) metadata.referrer = String(body.referrer).slice(0, 500);
 
     const stripe = getStripe();
+    const promotion = await resolvePromotionCode(stripe, body.promoCode);
+    if (promotion) metadata.promo_code = promotion.code;
+
+    const customer = await upsertCheckoutCustomer(stripe, { name, email, phone, metadata });
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
+      customer: customer.id,
+      customer_update: { name: "auto", address: "auto" },
       line_items: [{ price: plan.stripePriceId, quantity: 1 }],
       success_url: `${origin}/reserved?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/#pricing`,
       metadata,
       payment_intent_data: { metadata },
-      customer_creation: "always",
       billing_address_collection: "auto",
+      ...(promotion
+        ? { discounts: [{ promotion_code: promotion.id }] }
+        : { allow_promotion_codes: true }),
     });
 
     return c.json({ url: session.url });
   } catch (error) {
-    return c.json({ error: error.message }, 500);
+    const status = error.status || error.statusCode || 500;
+    return c.json(
+      { error: error.message },
+      status >= 400 && status < 600 ? status : 500,
+    );
   }
 });
 

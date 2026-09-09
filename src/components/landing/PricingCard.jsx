@@ -1,30 +1,13 @@
-import { useState } from "react";
-import { handleCheckout } from "../../lib/checkout.js";
 import { ReserveButton } from "./ReserveButton.jsx";
 
 export function PricingCard({
-  plan,
   label,
   price,
   detail,
   cta,
   featured = false,
+  onSelect,
 }) {
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-
-  async function onReserve() {
-    setBusy(true);
-    setError("");
-    try {
-      await handleCheckout(plan);
-    } catch (err) {
-      console.error(err);
-      setError("Checkout is unavailable right now. Please try again shortly.");
-      setBusy(false);
-    }
-  }
-
   return (
     <div className="pricing-card relative pt-5">
       {featured ? (
@@ -50,13 +33,10 @@ export function PricingCard({
         <ReserveButton
           variant={featured ? "gold" : "forest"}
           className="pricing-cta mt-8 w-full max-w-[200px]"
-          onClick={onReserve}
+          onClick={onSelect}
         >
-          {busy ? "Redirecting…" : cta}
+          {cta}
         </ReserveButton>
-        {error ? (
-          <p className="mt-3 max-w-[220px] text-[0.75rem] leading-5 text-forest-deep/70">{error}</p>
-        ) : null}
       </article>
     </div>
   );

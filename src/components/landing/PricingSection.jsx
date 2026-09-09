@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchFoundingPricing } from "../../lib/checkout.js";
 import { backgroundFocus, backgrounds } from "../../config/backgrounds.js";
+import { CheckoutModal } from "./CheckoutModal.jsx";
 import { PricingCard } from "./PricingCard.jsx";
 import { SectionBackground } from "./SectionBackground.jsx";
 
@@ -31,6 +32,7 @@ const fallbackPlans = [
 
 export function PricingSection() {
   const [plans, setPlans] = useState(fallbackPlans);
+  const [selectedPlan, setSelectedPlan] = useState(null);
 
   useEffect(() => {
     fetchFoundingPricing().then((rows) => {
@@ -67,11 +69,21 @@ export function PricingSection() {
 
           <div className="mx-auto mt-auto grid w-full max-w-[980px] grid-cols-1 gap-6 pt-12 md:grid-cols-3 md:items-stretch md:gap-5 lg:pt-16">
             {plans.map((item) => (
-              <PricingCard key={item.plan} {...item} />
+              <PricingCard
+                key={item.plan}
+                {...item}
+                onSelect={() => setSelectedPlan(item)}
+              />
             ))}
           </div>
         </div>
       </SectionBackground>
+      {selectedPlan ? (
+        <CheckoutModal
+          plan={selectedPlan}
+          onClose={() => setSelectedPlan(null)}
+        />
+      ) : null}
     </section>
   );
 }
