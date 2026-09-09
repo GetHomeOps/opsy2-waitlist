@@ -14,18 +14,26 @@ export function formatDollars(dollars, options = {}) {
   return formatUsd(Math.round(Number(dollars || 0) * 100), options);
 }
 
+function toValidDate(value) {
+  if (!value) return null;
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 export function formatDate(value) {
-  if (!value) return "—";
+  const date = toValidDate(value);
+  if (!date) return "—";
   return new Intl.DateTimeFormat("en-US", {
     timeZone: PACIFIC,
     month: "short",
     day: "numeric",
     year: "numeric",
-  }).format(new Date(value));
+  }).format(date);
 }
 
 export function formatDateTime(value) {
-  if (!value) return "—";
+  const date = toValidDate(value);
+  if (!date) return "—";
   return new Intl.DateTimeFormat("en-US", {
     timeZone: PACIFIC,
     month: "short",
@@ -34,7 +42,7 @@ export function formatDateTime(value) {
     hour: "numeric",
     minute: "2-digit",
     timeZoneName: "short",
-  }).format(new Date(value));
+  }).format(date);
 }
 
 export function initials(name) {

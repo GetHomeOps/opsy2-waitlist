@@ -36,6 +36,7 @@ export function WaitlistPage() {
   const didSync = useRef(false);
 
   async function load({ sync = false, quiet = false } = {}) {
+    const startedAt = Date.now();
     if (!quiet) setLoading(true);
     setError("");
     if (sync) setSyncing(true);
@@ -68,7 +69,13 @@ export function WaitlistPage() {
     } catch (err) {
       setError(err.message);
     } finally {
-      if (!quiet) setLoading(false);
+      if (!quiet) {
+        const elapsed = Date.now() - startedAt;
+        if (elapsed < 450) {
+          await new Promise((resolve) => setTimeout(resolve, 450 - elapsed));
+        }
+        setLoading(false);
+      }
       setSyncing(false);
     }
   }
@@ -243,7 +250,11 @@ export function WaitlistPage() {
 
         <div className="mt-4 overflow-hidden rounded-2xl border border-[#e6e0d4] bg-white">
           <div className="overflow-x-auto">
-            <table className="min-w-[1080px] w-full text-left text-sm">
+            <table
+              className="min-w-[1080px] w-full text-left text-sm"
+              aria-busy={loading}
+              aria-label="Waitlist users"
+            >
               <thead className="bg-[#f3f0e9] text-[0.72rem] font-semibold text-forest-deep/55">
                 <tr>
                   <th className="px-4 py-3">
@@ -268,11 +279,14 @@ export function WaitlistPage() {
               </thead>
               <tbody>
                 {loading ? (
-                  <tr>
-                    <td colSpan={TABLE_COLUMNS} className="px-4 py-10 text-center text-forest-deep/50">
-                      {syncing ? "Syncing paid reservations from Stripe…" : "Loading waitlist…"}
-                    </td>
-                  </tr>
+                  <>
+                    <tr className="sr-only">
+                      <td colSpan={TABLE_COLUMNS}>
+                        {syncing ? "Syncing paid reservations from Stripe" : "Loading waitlist users"}
+                      </td>
+                    </tr>
+                    <WaitlistSkeleton />
+                  </>
                 ) : pageRows.length === 0 ? (
                   <tr>
                     <td colSpan={TABLE_COLUMNS} className="px-4 py-10 text-center text-forest-deep/50">
@@ -398,6 +412,58 @@ export function WaitlistPage() {
       ) : null}
     </div>
   );
+}
+
+function Bone({ className = "", delay = 0 }) {
+  return (
+    <span
+      className={`skeleton-bone inline-block rounded-md ${className}`}
+      style={{ animationDelay: `${delay}ms` }}
+    />
+  );
+}
+
+function WaitlistSkeleton({ rows = 6 }) {
+  return Array.from({ length: rows }, (_, index) => {
+    const delay = index * 90;
+    return (
+      <tr key={index} className="border-t border-[#eee9de]">
+        <td className="px-4 py-3">
+          <div className="flex items-center gap-3">
+            <Bone className="h-8 w-8 rounded-full" delay={delay} />
+            <Bone className="h-3.5 w-28" delay={delay + 40} />
+          </div>
+        </td>
+        <td className="px-4 py-3">
+          <Bone className="h-3.5 w-40" delay={delay + 60} />
+        </td>
+        <td className="px-4 py-3">
+          <Bone className="h-3.5 w-28" delay={delay + 80} />
+        </td>
+        <td className="px-4 py-3">
+          <Bone className="h-3.5 w-32" delay={delay + 100} />
+        </td>
+        <td className="px-4 py-3">
+          <Bone className="h-3.5 w-12" delay={delay + 120} />
+        </td>
+        <td className="px-4 py-3">
+          <Bone className="h-5 w-14 rounded-full" delay={delay + 140} />
+        </td>
+        <td className="px-4 py-3">
+          <Bone className="h-5 w-12 rounded-full" delay={delay + 160} />
+        </td>
+        <td className="px-4 py-3">
+          <Bone className="h-3.5 w-24" delay={delay + 180} />
+        </td>
+        <td className="px-4 py-3">
+          <div className="flex items-center gap-1.5">
+            <Bone className="h-7 w-7 rounded-lg" delay={delay + 200} />
+            <Bone className="h-7 w-7 rounded-lg" delay={delay + 220} />
+          </div>
+        </td>
+      </tr>
+    );
+  });
 }
 
 function KpiCard({ icon, label, value, hint, labelClassName = "" }) {

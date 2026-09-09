@@ -52,6 +52,21 @@ select:disabled {
   background-size: 12px 12px;
 }
 
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+.skeleton-bone {
+  background: linear-gradient(90deg, #e7e2d6 0%, #f4f0e8 42%, #e7e2d6 84%);
+  background-size: 220% 100%;
+  animation: skeleton-shimmer 1.25s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -59,6 +74,10 @@ select:disabled {
 
   .rise-in {
     animation: none !important;
+  }
+
+  .skeleton-bone {
+    animation: none;
   }
 }
 
