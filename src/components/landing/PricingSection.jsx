@@ -53,7 +53,7 @@ export function PricingSection() {
         tabletPosition={backgroundFocus.pricing.tablet}
         desktopPosition={backgroundFocus.pricing.desktop}
         className="min-h-[100svh] lg:min-h-[960px]"
-        overlayClassName="bg-gradient-to-b from-cream/25 via-transparent to-black/10"
+        overlayClassName="bg-gradient-to-b from-transparent to-black/10"
       >
         <div className="mx-auto flex min-h-[100svh] w-full max-w-[1200px] flex-col px-6 py-14 md:px-10 lg:min-h-[960px] lg:py-16">
           <h2

@@ -12,6 +12,10 @@ export function AgentReserveLanding() {
     <main>
       <HeroSection />
       <HowItWorksSection />
+      <div
+        className="relative z-10 h-3 border-b-2 border-forest-deep/50 bg-cream shadow-[0_8px_18px_rgba(24,55,47,0.12)] md:h-4"
+        aria-hidden="true"
+      />
       <PricingSection />
       <GuaranteeSection />
       <FAQSection>
