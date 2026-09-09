@@ -33,6 +33,29 @@ export function isPackageKey(value) {
   return Object.prototype.hasOwnProperty.call(PACKAGES, value);
 }
 
+export function catalogPricingPlans() {
+  return PACKAGE_KEYS.map((key) => {
+    const catalog = PACKAGES[key];
+    return {
+      id: null,
+      packageKey: key,
+      displayName: catalog.displayName,
+      tagline: catalog.tagline,
+      transactionCount: catalog.transactionCount,
+      displayPrice: catalog.fallbackPriceDollars,
+      displayPriceDollars: catalog.fallbackPriceDollars,
+      stripePriceId: null,
+      stripeAmount: null,
+      stripeAmountDollars: null,
+      stripeCurrency: "usd",
+      isActive: true,
+      lastSyncedAt: null,
+      connected: false,
+      matches: true,
+    };
+  });
+}
+
 export function centsToDollars(cents) {
   return Math.round(Number(cents || 0) / 100);
 }

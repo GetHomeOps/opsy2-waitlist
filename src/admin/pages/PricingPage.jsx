@@ -1,15 +1,7 @@
 import { useEffect, useState } from "react";
 import { adminFetch } from "../lib/api.js";
 import { formatDateTime, formatDollars, formatUsd } from "../lib/format.js";
-import {
-  IconCheck,
-  IconCopy,
-  IconDoc,
-  IconRefresh,
-  IconWarn,
-  IconInfo,
-} from "../components/Icons.jsx";
-import { ChangePriceModal } from "../components/ChangePriceModal.jsx";
+import { IconCheck, IconDoc, IconRefresh, IconWarn, IconInfo } from "../components/Icons.jsx";
 
 const FALLBACK_PLANS = [
   {
@@ -50,24 +42,65 @@ const FALLBACK_PLANS = [
   },
 ];
 
+function stripePriceLabel(price) {
+  const name = price.nickname ? `${price.productName} · ${price.nickname}` : price.productName;
+  if (price.unitAmount == null) return name;
+  const amount = formatUsd(price.unitAmount, { centsIfNeeded: true });
+  if (price.type === "recurring" && price.interval) {
+    return `${name} — ${amount} / ${price.interval}`;
+  }
+  return `${name} — ${amount}`;
+}
+
+function optionsForPlan(plan, prices) {
+  if (plan.stripePriceId && !prices.some((price) => price.id === plan.stripePriceId)) {
+    return [
+      {
+        id: plan.stripePriceId,
+        productName: plan.stripePriceId,
+        unitAmount: plan.stripeAmount,
+        nickname: "Currently connected",
+      },
+      ...prices,
+    ];
+  }
+  return prices;
+}
+
 export function PricingPage() {
   const [plans, setPlans] = useState(FALLBACK_PLANS);
   const [connectedCount, setConnectedCount] = useState(0);
   const [totalCount, setTotalCount] = useState(3);
+  const [stripePrices, setStripePrices] = useState([]);
+  const [pricesLoading, setPricesLoading] = useState(true);
   const [error, setError] = useState("");
   const [syncing, setSyncing] = useState(false);
-  const [editing, setEditing] = useState(null);
-  const [copied, setCopied] = useState("");
+  const [savingKey, setSavingKey] = useState("");
+
+  function applyPricing(data) {
+    setPlans(data.plans || []);
+    setConnectedCount(data.connectedCount || 0);
+    setTotalCount(data.totalCount || 3);
+  }
 
   async function load() {
     setError("");
+    setPricesLoading(true);
     try {
-      const data = await adminFetch("/api/admin/pricing");
-      setPlans(data.plans || []);
-      setConnectedCount(data.connectedCount || 0);
-      setTotalCount(data.totalCount || 3);
+      const [pricing, stripe] = await Promise.all([
+        adminFetch("/api/admin/pricing"),
+        adminFetch("/api/admin/stripe-prices").catch((err) => ({
+          prices: [],
+          error: err.message,
+        })),
+      ]);
+      applyPricing(pricing);
+      setStripePrices(stripe.prices || []);
+      if (stripe.error) setError(stripe.error);
     } catch (err) {
       setError(err.message);
+    } finally {
+      setPricesLoading(false);
     }
   }
 
@@ -79,10 +112,7 @@ export function PricingPage() {
     setSyncing(true);
     setError("");
     try {
-      const data = await adminFetch("/api/admin/pricing/sync", { method: "POST", json: {} });
-      setPlans(data.plans || []);
-      setConnectedCount(data.connectedCount || 0);
-      setTotalCount(data.totalCount || 3);
+      applyPricing(await adminFetch("/api/admin/pricing/sync", { method: "POST", json: {} }));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -90,10 +120,27 @@ export function PricingPage() {
     }
   }
 
-  async function copy(id) {
-    await navigator.clipboard.writeText(id);
-    setCopied(id);
-    setTimeout(() => setCopied(""), 1200);
+  async function connectPlan(plan, stripePriceId) {
+    if (!stripePriceId || stripePriceId === plan.stripePriceId) return;
+    setSavingKey(plan.packageKey);
+    setError("");
+    try {
+      const data = await adminFetch(`/api/admin/pricing/${plan.packageKey}`, {
+        method: "PATCH",
+        json: { stripePriceId },
+      });
+      setPlans((current) => {
+        const next = current.map((item) =>
+          item.packageKey === data.plan.packageKey ? data.plan : item,
+        );
+        setConnectedCount(next.filter((item) => item.connected).length);
+        return next;
+      });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSavingKey("");
+    }
   }
 
   const allConnected = connectedCount === totalCount && totalCount > 0;
@@ -163,27 +210,26 @@ export function PricingPage() {
 
               <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
                 <label className="block text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-forest-deep/45">
-                  Stripe Price ID
-                  <span className="mt-1.5 flex items-center gap-2 rounded-xl border border-[#e6e0d4] bg-[#fbfaf6] px-3 py-2">
-                    <span className="min-w-0 flex-1 truncate font-mono text-[0.8rem] font-normal normal-case tracking-normal text-forest-deep">
-                      {plan.stripePriceId || "Not connected"}
-                    </span>
-                    {plan.stripePriceId ? (
-                      <button
-                        type="button"
-                        onClick={() => copy(plan.stripePriceId)}
-                        className="text-forest"
-                        aria-label="Copy Stripe price ID"
-                      >
-                        <IconCopy className="h-4 w-4" />
-                      </button>
-                    ) : null}
-                    {copied === plan.stripePriceId ? (
-                      <span className="text-[0.68rem] font-medium normal-case tracking-normal text-forest">
-                        Copied
-                      </span>
-                    ) : null}
-                  </span>
+                  Stripe product
+                  <select
+                    value={plan.stripePriceId || ""}
+                    disabled={pricesLoading || savingKey === plan.packageKey}
+                    onChange={(event) => connectPlan(plan, event.target.value)}
+                    className="admin-select mt-1.5 w-full rounded-xl border border-[#e6e0d4] bg-[#fbfaf6] px-3 py-2 pr-9 text-[0.85rem] font-normal normal-case tracking-normal text-forest-deep outline-none focus:border-forest disabled:opacity-70"
+                  >
+                    <option value="">
+                      {pricesLoading
+                        ? "Loading products…"
+                        : savingKey === plan.packageKey
+                          ? "Saving…"
+                          : "Select a Stripe product…"}
+                    </option>
+                    {optionsForPlan(plan, stripePrices).map((price) => (
+                      <option key={price.id} value={price.id}>
+                        {stripePriceLabel(price)}
+                      </option>
+                    ))}
+                  </select>
                 </label>
 
                 <div className="flex items-center gap-2 pb-2 text-sm">
@@ -200,18 +246,9 @@ export function PricingPage() {
                   </span>
                 </label>
 
-                <div className="flex flex-col items-start gap-2 sm:items-end">
-                  <p className="text-[0.78rem] text-forest-deep/50">
-                    Last synced: {formatDateTime(plan.lastSyncedAt)}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => setEditing(plan)}
-                    className="rounded-xl border border-[#d9d3c6] bg-white px-3 py-2 text-sm font-semibold text-forest-deep hover:bg-[#f6f3ec]"
-                  >
-                    Change Price
-                  </button>
-                </div>
+                <p className="pb-2 text-[0.78rem] text-forest-deep/50 sm:text-right">
+                  Last synced: {formatDateTime(plan.lastSyncedAt)}
+                </p>
               </div>
             </div>
 
@@ -246,23 +283,6 @@ export function PricingPage() {
           </p>
         </div>
       </div>
-
-      {editing ? (
-        <ChangePriceModal
-          plan={editing}
-          onClose={() => setEditing(null)}
-          onSaved={(plan) => {
-            setPlans((current) => {
-              const next = current.map((item) =>
-                item.packageKey === plan.packageKey ? plan : item,
-              );
-              setConnectedCount(next.filter((item) => item.connected).length);
-              return next;
-            });
-            setEditing(null);
-          }}
-        />
-      ) : null}
     </main>
   );
 }

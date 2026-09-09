@@ -33,9 +33,10 @@ export function HowItWorksSection() {
         tabletPosition={backgroundFocus.howItWorks.tablet}
         desktopPosition={backgroundFocus.howItWorks.desktop}
         className="min-h-[100svh] lg:min-h-[860px]"
+        imageClassName="saturate-[.78] brightness-[1.06]"
         overlay={
           <div
-            className="pointer-events-none absolute inset-0 bg-black/10"
+            className="pointer-events-none absolute inset-0 bg-cream/40"
             aria-hidden="true"
           />
         }
@@ -50,7 +51,7 @@ export function HowItWorksSection() {
               <br />
               We do the rest — quietly.
             </h2>
-            <p className="mt-3 max-w-[30rem] font-sans text-[clamp(0.95rem,2.2vw,1.2rem)] italic leading-relaxed text-forest-deep/80 md:text-white">
+            <p className="mt-3 max-w-[30rem] font-sans text-[clamp(0.95rem,2.2vw,1.2rem)] italic leading-relaxed text-forest-deep/85">
               Your client never lifts a finger, and never sees it coming.
             </p>
           </div>

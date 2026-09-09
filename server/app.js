@@ -8,7 +8,7 @@ import {
   verifyAdminPassword,
 } from "./auth.js";
 import { appUrl, hasStripe, hasSupabase } from "./env.js";
-import { isPackageKey, PACKAGE_KEYS, PACKAGES } from "./packages.js";
+import { catalogPricingPlans, isPackageKey, PACKAGE_KEYS, PACKAGES } from "./packages.js";
 import {
   connectStripePrice,
   getPricingByKey,
@@ -192,7 +192,7 @@ app.get("/admin/pricing", async (c) => {
   const unauthorized = requireAdmin(c);
   if (unauthorized) return unauthorized;
   try {
-    const plans = await listPricingPlans();
+    const plans = hasSupabase() ? await listPricingPlans() : catalogPricingPlans();
     const connected = plans.filter((plan) => plan.connected).length;
     return c.json({
       plans,
@@ -243,6 +243,9 @@ app.get("/admin/stripe-prices", async (c) => {
   const unauthorized = requireAdmin(c);
   if (unauthorized) return unauthorized;
   try {
+    if (!hasStripe()) {
+      return c.json({ prices: [] });
+    }
     const prices = await listStripeOneTimePrices();
     return c.json({ prices });
   } catch (error) {
