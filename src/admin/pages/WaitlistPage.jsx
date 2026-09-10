@@ -124,7 +124,7 @@ export function WaitlistPage() {
       <main className="min-w-0 flex-1 px-5 py-7 md:px-8 lg:px-10">
         <header>
           <h1 className="font-serif text-[2.35rem] font-semibold leading-none text-forest-deep">
-            Waitlist Users
+            Agents
           </h1>
           <p className="mt-2 max-w-[42rem] text-[0.95rem] text-forest-deep/65">
             Agents who joined the founding transactions waitlist and paid through Stripe.

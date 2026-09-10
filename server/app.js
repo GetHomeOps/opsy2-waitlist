@@ -27,6 +27,12 @@ import {
   updateNotes,
 } from "./reservations.js";
 import { getStripe } from "./stripe.js";
+import {
+  countHouseholds,
+  FOUNDING_HOUSEHOLD_CAP,
+  listHouseholds,
+  registerHousehold,
+} from "./waitlist.js";
 import { processStripeWebhook } from "./webhooks.js";
 
 export const app = new Hono().basePath("/api");
@@ -38,6 +44,30 @@ app.get("/health", (c) =>
     stripe: hasStripe(),
   }),
 );
+
+app.get("/founding-households", async (c) => {
+  try {
+    const count = await countHouseholds();
+    return c.json({ count, cap: FOUNDING_HOUSEHOLD_CAP });
+  } catch {
+    return c.json({ error: "Count unavailable." }, 503);
+  }
+});
+
+app.post("/founding-households", async (c) => {
+  try {
+    const body = await c.req.json().catch(() => ({}));
+    const saved = await registerHousehold(body);
+    return c.json({ ok: true, id: saved.id });
+  } catch (error) {
+    const status = error.status || 500;
+    const message =
+      status >= 400 && status < 500 || status === 503
+        ? error.message
+        : "Something went wrong. Please try again shortly.";
+    return c.json({ error: message }, status >= 400 && status < 600 ? status : 500);
+  }
+});
 
 app.get("/founding-pricing", async (c) => {
   try {
@@ -143,7 +173,7 @@ app.post("/founding-checkout", async (c) => {
       customer_update: { name: "auto", address: "auto" },
       line_items: [{ price: plan.stripePriceId, quantity: 1 }],
       success_url: `${origin}/reserved?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/#pricing`,
+      cancel_url: `${origin}/agents#pricing`,
       metadata,
       payment_intent_data: { metadata },
       billing_address_collection: "auto",
@@ -212,6 +242,21 @@ app.get("/admin/session", (c) => {
   const session = getSession(c);
   if (!session) return c.json({ authenticated: false }, 401);
   return c.json({ authenticated: true });
+});
+
+app.get("/admin/homeowners", async (c) => {
+  const unauthorized = requireAdmin(c);
+  if (unauthorized) return unauthorized;
+  try {
+    const url = new URL(c.req.url);
+    const result = await listHouseholds({
+      q: url.searchParams.get("q") || "",
+      timeline: url.searchParams.get("timeline") || "",
+    });
+    return c.json(result);
+  } catch (error) {
+    return c.json({ error: error.message }, 500);
+  }
 });
 
 app.get("/admin/waitlist", async (c) => {

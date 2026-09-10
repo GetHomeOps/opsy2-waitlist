@@ -25,7 +25,7 @@ export function ReservedPage() {
           Your payment is confirmed and your Founding Transaction is reserved.
           We&apos;ll follow up with next steps.
         </p>
-        <ReserveButton href="/" variant="forest" className="mt-8">
+        <ReserveButton href="/agents" variant="forest" className="mt-8">
           Back to Opsy
         </ReserveButton>
       </div>

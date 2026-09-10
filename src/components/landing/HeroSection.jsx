@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { backgroundFocus, backgrounds } from "../../config/backgrounds.js";
 import { BrandLogo } from "./BrandLogo.jsx";
 import { PhoneMockup } from "./PhoneMockup.jsx";
@@ -22,12 +21,6 @@ export function HeroSection() {
           />
         }
       >
-        <Link
-          to="/admin/login"
-          className="absolute right-5 top-5 z-20 rounded-full border border-cream/80 bg-forest/55 px-4 py-1.5 text-[0.82rem] font-semibold tracking-wide text-cream backdrop-blur-[2px] transition-colors hover:bg-forest/75 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold md:right-8 md:top-8 xl:right-10"
-        >
-          Log in
-        </Link>
         <div className="mx-auto grid min-h-[100svh] w-full max-w-[1440px] grid-cols-1 items-center gap-8 px-6 py-8 md:px-10 lg:min-h-[860px] lg:grid-cols-2 lg:gap-6 lg:py-12 xl:px-16">
           <div className="rise-in max-w-[560px] pt-2 text-cream">
             <BrandLogo variant="light" />

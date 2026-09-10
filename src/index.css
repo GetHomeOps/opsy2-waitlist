@@ -14,6 +14,11 @@
   --color-gold-deep: #c1964a;
   --color-ink: #2a3d36;
   --color-charcoal: #333333;
+
+  --color-ho-forest: #1f5844;
+  --color-ho-cream: #f8f5ed;
+  --color-ho-gold: #e9bc71;
+  --color-ho-gold-hover: #f0c984;
 }
 
 html {
@@ -72,7 +77,9 @@ select:disabled {
     scroll-behavior: auto;
   }
 
-  .rise-in {
+  .rise-in,
+  .phone-enter,
+  .ho-card-enter {
     animation: none !important;
   }
 
@@ -95,6 +102,25 @@ select:disabled {
 @media (prefers-reduced-motion: no-preference) {
   .rise-in {
     animation: rise-in 0.7s ease both;
+  }
+
+  .phone-enter {
+    animation: phone-enter 1s ease both;
+  }
+
+  .ho-card-enter {
+    animation: rise-in 0.7s ease both;
+  }
+}
+
+@keyframes phone-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(12px, 22px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 

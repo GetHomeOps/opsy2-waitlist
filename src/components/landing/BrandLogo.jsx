@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export function BrandLogo({ variant = "dark", className = "" }) {
   const src =
     variant === "light"
@@ -5,10 +7,12 @@ export function BrandLogo({ variant = "dark", className = "" }) {
       : "/branding/opsy-header.png";
 
   return (
-    <img
-      src={src}
-      alt="Opsy, powered by HomeOps"
-      className={`h-auto w-[236px] md:w-[280px] ${className}`}
-    />
+    <Link to="/" aria-label="Opsy home">
+      <img
+        src={src}
+        alt="Opsy, powered by HomeOps"
+        className={`h-auto w-[236px] md:w-[280px] ${className}`}
+      />
+    </Link>
   );
 }

@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { BrandLogo } from "./BrandLogo.jsx";
 
 export function SiteFooter() {
@@ -28,14 +27,7 @@ export function SiteFooter() {
           className="underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
         >
           Terms
-        </a>{" "}
-        ·{" "}
-        <Link
-          to="/admin/login"
-          className="underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
-        >
-          Log in
-        </Link>
+        </a>
       </p>
 
       <BrandLogo className="w-[176px] self-start md:w-[176px] md:self-end" />

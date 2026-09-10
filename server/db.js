@@ -6,6 +6,7 @@ export const landingTables = {
   pricing: "pricing",
   reservations: "reservations",
   stripeEvents: "stripe_events",
+  waitlist: "waitlist",
 };
 
 let client;

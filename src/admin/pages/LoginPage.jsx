@@ -39,7 +39,7 @@ export function LoginPage() {
       >
         <AdminBrand titleClassName="text-2xl" />
         <p className="mt-3 text-sm leading-6 text-forest-deep/65">
-          Internal access for the Founding Transactions waitlist.
+          Internal access for founding agent and homeowner waitlists.
         </p>
         <label className="mt-6 block text-[0.78rem] font-medium text-forest-deep/70">
           Password
