@@ -13,6 +13,14 @@ export function HomeownerHero({ onLockRate }) {
 
   return (
     <section aria-label="Meet Opsy" className="bg-ho-forest">
+      <link
+        rel="preload"
+        as="image"
+        href={homeownerAssets.heroLeft.webp}
+        type="image/webp"
+        imageSrcSet={homeownerAssets.heroLeft.webpSrcSet}
+        imageSizes="(min-width: 1024px) 50vw, 100vw"
+      />
       <div className="grid min-h-[100svh] grid-cols-1 lg:grid-cols-2">
         <div className="relative flex min-h-[auto] flex-col overflow-hidden px-4 py-8 sm:px-6 md:px-10 lg:min-h-[100svh] lg:px-12 xl:px-16">
           <PictureBackdrop
@@ -78,15 +86,20 @@ export function HomeownerHero({ onLockRate }) {
           <PictureBackdrop
             {...homeownerAssets.heroAerial}
             sizes="(min-width: 1024px) 50vw, 100vw"
+            loading="eager"
           />
-          <img
-            src={homeownerAssets.phoneTilted.src}
-            alt="A text conversation with Opsy answering a homeowner question from an inspection report"
-            width={homeownerAssets.phoneTilted.width}
-            height={homeownerAssets.phoneTilted.height}
-            className="phone-enter pointer-events-none absolute left-1/2 top-1/2 w-[min(118%,36rem)] max-w-none -translate-x-1/2 -translate-y-1/2 object-contain sm:w-[min(88%,38rem)] lg:w-[clamp(26rem,41vw,42rem)]"
-            decoding="async"
-          />
+          <picture>
+            <source srcSet={homeownerAssets.phoneTilted.webp} type="image/webp" />
+            <img
+              src={homeownerAssets.phoneTilted.src}
+              alt="A text conversation with Opsy answering a homeowner question from an inspection report"
+              width={homeownerAssets.phoneTilted.width}
+              height={homeownerAssets.phoneTilted.height}
+              className="phone-enter pointer-events-none absolute left-1/2 top-1/2 w-[min(118%,36rem)] max-w-none -translate-x-1/2 -translate-y-1/2 object-contain sm:w-[min(88%,38rem)] lg:w-[clamp(26rem,41vw,42rem)]"
+              decoding="async"
+              fetchPriority="low"
+            />
+          </picture>
         </div>
       </div>
     </section>

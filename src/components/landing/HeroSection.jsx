@@ -7,6 +7,7 @@ import { SectionBackground } from "./SectionBackground.jsx";
 export function HeroSection() {
   return (
     <section aria-label="Founding Transactions">
+      <link rel="preload" as="image" href={backgrounds.hero.webp} type="image/webp" />
       <SectionBackground
         src={backgrounds.hero}
         mobilePosition={backgroundFocus.hero.mobile}
@@ -14,6 +15,7 @@ export function HeroSection() {
         desktopPosition={backgroundFocus.hero.desktop}
         className="min-h-[100svh] lg:min-h-[860px]"
         imageClassName="hero-people-crop"
+        priority
         overlay={
           <div
             className="pointer-events-none absolute inset-0 bg-forest/50 lg:inset-y-0 lg:left-0 lg:w-[56%] lg:bg-transparent lg:bg-gradient-to-r lg:from-forest/40 lg:via-forest/10 lg:to-transparent"

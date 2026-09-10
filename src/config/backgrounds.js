@@ -1,10 +1,25 @@
 // Mapped by visual comparison to heyopsy_reserve_landing_AGENT.pptx.pdf
 export const backgrounds = {
-  hero: "/backgrounds/hero.jpg", // PDF page 1 — family/green split + neighborhood aerial
-  howItWorks: "/backgrounds/how-it-works.jpg", // PDF page 2 — dusk neighborhood aerial
-  pricing: "/backgrounds/pricing.jpg", // PDF page 3 — garden greeting
-  guarantee: "/backgrounds/guarantee.jpg", // PDF page 4 — keys, green wash
-  faq: "/backgrounds/faq.jpg", // PDF page 5 — washed Seattle skyline
+  hero: {
+    jpg: "/backgrounds/hero.jpg",
+    webp: "/backgrounds/hero.webp",
+  },
+  howItWorks: {
+    jpg: "/backgrounds/how-it-works.jpg",
+    webp: "/backgrounds/how-it-works.webp",
+  },
+  pricing: {
+    jpg: "/backgrounds/pricing.jpg",
+    webp: "/backgrounds/pricing.webp",
+  },
+  guarantee: {
+    jpg: "/backgrounds/guarantee.jpg",
+    webp: "/backgrounds/guarantee.webp",
+  },
+  faq: {
+    jpg: "/backgrounds/faq.jpg",
+    webp: "/backgrounds/faq.webp",
+  },
 };
 
 export const backgroundFocus = {

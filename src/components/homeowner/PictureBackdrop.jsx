@@ -1,16 +1,30 @@
 export function PictureBackdrop({
   jpg,
   webp,
+  jpgSrcSet,
+  webpSrcSet,
   width,
   height,
   position = "center center",
   sizes,
   priority = false,
+  loading,
   className = "",
 }) {
+  const loadMode = loading || (priority ? "eager" : "lazy");
+
   return (
     <picture>
-      <source srcSet={webp} type="image/webp" sizes={sizes} />
+      {webp || webpSrcSet ? (
+        <source
+          type="image/webp"
+          srcSet={webpSrcSet || webp}
+          sizes={sizes}
+        />
+      ) : null}
+      {jpgSrcSet ? (
+        <source type="image/jpeg" srcSet={jpgSrcSet} sizes={sizes} />
+      ) : null}
       <img
         src={jpg}
         alt=""
@@ -19,8 +33,9 @@ export function PictureBackdrop({
         sizes={sizes}
         className={`absolute inset-0 h-full w-full object-cover ${className}`}
         style={{ objectPosition: position }}
-        decoding={priority ? "sync" : "async"}
+        loading={loadMode}
         fetchPriority={priority ? "high" : "auto"}
+        decoding="async"
       />
     </picture>
   );
