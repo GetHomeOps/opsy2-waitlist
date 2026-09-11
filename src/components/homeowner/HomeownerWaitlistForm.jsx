@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { buyingTimelines, HOUSEHOLD_DEPOSIT, smsConsentCopy } from "../../config/homeowner.js";
 import { registerHousehold } from "../../lib/waitlist.js";
 import { BrandLogo } from "../landing/BrandLogo.jsx";
+import { LegalLink } from "../legal/LegalModal.jsx";
 import { HomeownerFooter } from "./HomeownerFooter.jsx";
 
 const emptyForm = {
@@ -194,19 +195,19 @@ export function HomeownerWaitlistForm({ sectionRef, emailPrefill, focusToken }) 
                   />
                   <span>
                     {smsConsentCopy.beforeLinks}
-                    <a
-                      href="#"
+                    <LegalLink
+                      documentKey="privacy"
                       className="underline underline-offset-2 hover:text-white"
                     >
                       {smsConsentCopy.privacy}
-                    </a>
+                    </LegalLink>
                     {smsConsentCopy.and}
-                    <a
-                      href="#"
+                    <LegalLink
+                      documentKey="terms"
                       className="underline underline-offset-2 hover:text-white"
                     >
                       {smsConsentCopy.terms}
-                    </a>
+                    </LegalLink>
                     {smsConsentCopy.afterLinks}
                   </span>
                 </label>

@@ -1,33 +1,31 @@
 import { BrandLogo } from "./BrandLogo.jsx";
+import { LegalLink } from "../legal/LegalModal.jsx";
 
 export function SiteFooter() {
   return (
     <footer className="mt-16 flex flex-col gap-8 border-t border-forest/10 pt-8 md:mt-20 md:flex-row md:items-end md:justify-between">
       <p className="text-[0.86rem] text-forest-deep/75">
         © 2026 HomeOps Inc. ·{" "}
-        {/* TODO: replace with Founding Terms route when available */}
-        <a
-          href="#"
+        <LegalLink
+          documentKey="founding"
           className="underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
         >
           Founding Terms
-        </a>{" "}
+        </LegalLink>{" "}
         ·{" "}
-        {/* TODO: replace with Privacy route when available */}
-        <a
-          href="#"
+        <LegalLink
+          documentKey="privacy"
           className="underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
         >
           Privacy
-        </a>{" "}
+        </LegalLink>{" "}
         ·{" "}
-        {/* TODO: replace with Terms route when available */}
-        <a
-          href="#"
+        <LegalLink
+          documentKey="terms"
           className="underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
         >
           Terms
-        </a>
+        </LegalLink>
       </p>
 
       <BrandLogo className="w-[176px] self-start md:w-[176px] md:self-end" />
