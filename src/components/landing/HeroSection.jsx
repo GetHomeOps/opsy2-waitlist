@@ -13,7 +13,7 @@ export function HeroSection() {
         mobilePosition={backgroundFocus.hero.mobile}
         tabletPosition={backgroundFocus.hero.tablet}
         desktopPosition={backgroundFocus.hero.desktop}
-        className="min-h-[100svh] lg:min-h-[860px]"
+        className="bg-forest lg:min-h-[860px]"
         imageClassName="hero-people-crop"
         priority
         overlay={
@@ -23,43 +23,47 @@ export function HeroSection() {
           />
         }
       >
-        <div className="mx-auto grid min-h-[100svh] w-full max-w-[1440px] grid-cols-1 items-center gap-8 px-6 py-8 md:px-10 lg:min-h-[860px] lg:grid-cols-2 lg:gap-6 lg:py-12 xl:px-16">
-          <div className="rise-in max-w-[560px] pt-2 text-cream">
-            <BrandLogo variant="light" />
+        <div className="mx-auto grid w-full max-w-[1440px] grid-cols-1 lg:min-h-[860px] lg:grid-cols-2 lg:items-center lg:gap-6 lg:px-10 lg:py-12 xl:px-16">
+          <div className="px-6 py-8 md:px-10 lg:px-0 lg:py-0">
+            <div className="rise-in max-w-[560px] pt-2 text-cream">
+              <BrandLogo variant="light" />
 
-            <h1 className="mt-10 font-serif text-[clamp(2.35rem,5.4vw,4.35rem)] font-semibold leading-[1.05] tracking-[-0.01em] md:mt-14">
-              The closing gift
-              <br />
-              <span className="whitespace-nowrap">
-                that{" "}
+              <h1 className="mt-10 font-serif text-[clamp(2.35rem,5.4vw,4.35rem)] font-semibold leading-[1.05] tracking-[-0.01em] md:mt-14">
+                The closing gift
+                <br />
+                <span className="whitespace-nowrap">
+                  that{" "}
+                  <em className="font-semibold italic text-cream">
+                    keeps working
+                  </em>
+                </span>
+                <br />
                 <em className="font-semibold italic text-cream">
-                  keeps working
+                  for you &amp; your&nbsp;clients
                 </em>
-              </span>
-              <br />
-              <em className="font-semibold italic text-cream">
-                for you &amp; your&nbsp;clients
-              </em>
-            </h1>
+              </h1>
 
-            <p className="mt-6 max-w-[440px] text-[0.98rem] leading-7 text-cream/95 md:text-[1.02rem] md:leading-8">
-              CC one address when your deal goes mutual. On closing day,
-              your client gets their entire home — documents, warranties,
-              maintenance — organized and answerable by text and you stay
-              connected without any of the work.
-            </p>
+              <p className="mt-6 max-w-[440px] text-[0.98rem] leading-7 text-cream/95 md:text-[1.02rem] md:leading-8">
+                CC one address when your deal goes mutual. On closing day,
+                your client gets their entire home — documents, warranties,
+                maintenance — organized and answerable by text and you stay
+                connected without any of the work.
+              </p>
 
-            <ReserveButton
-              href="#pricing"
-              variant="gold"
-              className="mt-8 max-w-full px-5 py-3.5 text-center text-[0.92rem] font-semibold leading-snug shadow-none sm:px-8 sm:text-[0.98rem]"
-            >
-              Reserve your Founding Transactions Today!
-            </ReserveButton>
+              <ReserveButton
+                href="#pricing"
+                variant="gold"
+                className="mt-8 max-w-full px-5 py-3.5 text-center text-[0.92rem] font-semibold leading-snug shadow-none sm:px-8 sm:text-[0.98rem]"
+              >
+                Reserve your Founding Transactions Today!
+              </ReserveButton>
+            </div>
           </div>
 
-          <div className="flex justify-center overflow-x-clip pb-6 lg:pb-0">
-            <PhoneMockup />
+          <div className="agent-hero-demo relative min-h-[88svh] overflow-hidden sm:min-h-[92svh] lg:min-h-[860px] lg:overflow-visible">
+            <div className="phone-enter relative z-10 flex min-h-[88svh] items-center justify-center px-3 py-8 sm:min-h-[92svh] lg:min-h-[860px] lg:px-0 lg:py-0">
+              <PhoneMockup />
+            </div>
           </div>
         </div>
       </SectionBackground>
