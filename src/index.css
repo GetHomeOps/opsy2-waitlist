@@ -79,7 +79,8 @@ select:disabled {
 
   .rise-in,
   .phone-enter,
-  .ho-card-enter {
+  .ho-card-enter,
+  .founding-progress-fill {
     animation: none !important;
   }
 
