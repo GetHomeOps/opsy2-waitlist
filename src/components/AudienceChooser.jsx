@@ -31,13 +31,13 @@ export function AudienceChooser() {
         <div className="mt-8 flex flex-col gap-3">
           <Link
             to="/agents"
-            className="inline-flex h-14 items-center justify-center rounded-full bg-forest px-8 text-[1rem] font-semibold text-cream transition-colors hover:bg-forest-mid focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+            className="inline-flex h-14 items-center justify-center rounded-full bg-forest px-8 text-center text-[1rem] font-semibold text-cream transition-colors hover:bg-forest-mid focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
           >
             I&apos;m an agent
           </Link>
           <Link
             to="/homeowners"
-            className="inline-flex h-14 items-center justify-center rounded-full bg-gold px-8 text-[1rem] font-semibold text-forest-deep transition-colors hover:bg-gold-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-deep"
+            className="inline-flex h-14 items-center justify-center rounded-full bg-gold px-8 text-center text-[1rem] font-semibold text-forest-deep transition-colors hover:bg-gold-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-deep"
           >
             I&apos;m a homeowner
           </Link>

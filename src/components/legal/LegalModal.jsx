@@ -133,7 +133,7 @@ function LegalModal({ document: legalDocument, onClose }) {
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full bg-forest-deep px-5 py-2 text-sm font-semibold text-cream transition-colors hover:bg-forest focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+            className="rounded-full bg-forest-deep px-5 py-2 text-center text-sm font-semibold text-cream transition-colors hover:bg-forest focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
           >
             Close
           </button>

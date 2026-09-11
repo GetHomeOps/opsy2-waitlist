@@ -81,7 +81,7 @@ export function FoundingRateSection({ onLockRate }) {
                 <button
                   type="button"
                   onClick={onLockRate}
-                  className="pricing-cta mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-ho-gold px-8 py-3 text-[0.95rem] font-semibold tracking-wide text-ho-forest transition-[background-color,transform] duration-300 hover:bg-ho-gold-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ho-forest motion-safe:hover:scale-[1.03]"
+                  className="pricing-cta mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-ho-gold px-8 py-3 text-center text-[0.95rem] font-semibold tracking-wide text-ho-forest transition-[background-color,transform] duration-300 hover:bg-ho-gold-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ho-forest motion-safe:hover:scale-[1.03]"
                 >
                   Lock the founding rate
                 </button>

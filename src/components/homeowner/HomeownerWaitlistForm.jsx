@@ -222,7 +222,7 @@ export function HomeownerWaitlistForm({ sectionRef, emailPrefill, focusToken }) 
               <button
                 type="submit"
                 disabled={busy}
-                className="inline-flex h-14 w-full items-center justify-center rounded-full bg-ho-gold px-8 py-3.5 text-[1rem] font-semibold tracking-wide text-ho-forest transition-[background-color,transform] duration-300 hover:bg-ho-gold-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:opacity-70 motion-safe:hover:scale-[1.015]"
+                className="inline-flex h-14 w-full items-center justify-center rounded-full bg-ho-gold px-8 py-3.5 text-center text-[1rem] font-semibold tracking-wide text-ho-forest transition-[background-color,transform] duration-300 hover:bg-ho-gold-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:opacity-70 motion-safe:hover:scale-[1.015]"
               >
                 {busy ? "Redirecting…" : "Lock the founding rate"}
               </button>
