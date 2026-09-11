@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { homeownerAssets } from "../../config/homeowner.js";
 import { BrandLogo } from "../landing/BrandLogo.jsx";
+import { PhoneMockup } from "../landing/PhoneMockup.jsx";
 import { PictureBackdrop } from "./PictureBackdrop.jsx";
 
 export function HomeownerHero({ onLockRate }) {
@@ -82,24 +83,15 @@ export function HomeownerHero({ onLockRate }) {
           </div>
         </div>
 
-        <div className="relative min-h-[72svh] overflow-hidden sm:min-h-[78svh] lg:min-h-[100svh]">
+        <div className="relative min-h-[88svh] overflow-hidden sm:min-h-[92svh] lg:min-h-[100svh]">
           <PictureBackdrop
             {...homeownerAssets.heroAerial}
             sizes="(min-width: 1024px) 50vw, 100vw"
             loading="eager"
           />
-          <picture>
-            <source srcSet={homeownerAssets.phoneTilted.webp} type="image/webp" />
-            <img
-              src={homeownerAssets.phoneTilted.src}
-              alt="A text conversation with Opsy answering a homeowner question from an inspection report"
-              width={homeownerAssets.phoneTilted.width}
-              height={homeownerAssets.phoneTilted.height}
-              className="phone-enter pointer-events-none absolute left-1/2 top-1/2 w-[min(118%,36rem)] max-w-none -translate-x-1/2 -translate-y-1/2 object-contain sm:w-[min(88%,38rem)] lg:w-[clamp(26rem,41vw,42rem)]"
-              decoding="async"
-              fetchPriority="low"
-            />
-          </picture>
+          <div className="phone-enter relative z-10 flex min-h-[88svh] items-center justify-center px-3 py-8 sm:min-h-[92svh] lg:min-h-[100svh]">
+            <PhoneMockup />
+          </div>
         </div>
       </div>
     </section>
