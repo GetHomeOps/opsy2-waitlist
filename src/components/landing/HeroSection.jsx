@@ -1,4 +1,6 @@
 import { backgroundFocus, backgrounds } from "../../config/backgrounds.js";
+import { homeownerAssets } from "../../config/homeowner.js";
+import { PictureBackdrop } from "../homeowner/PictureBackdrop.jsx";
 import { BrandLogo } from "./BrandLogo.jsx";
 import { PhoneMockup } from "./PhoneMockup.jsx";
 import { ReserveButton } from "./ReserveButton.jsx";
@@ -60,7 +62,13 @@ export function HeroSection() {
             </div>
           </div>
 
-          <div className="agent-hero-demo relative min-h-[88svh] overflow-hidden sm:min-h-[92svh] lg:min-h-[860px] lg:overflow-visible">
+          <div className="relative min-h-[88svh] overflow-hidden bg-forest sm:min-h-[92svh] lg:min-h-[860px] lg:overflow-visible lg:bg-transparent">
+            <PictureBackdrop
+              {...homeownerAssets.heroAerial}
+              sizes="(min-width: 1024px) 50vw, 100vw"
+              loading="eager"
+              className="lg:hidden"
+            />
             <div className="phone-enter relative z-10 flex min-h-[88svh] items-center justify-center px-3 py-8 sm:min-h-[92svh] lg:min-h-[860px] lg:px-0 lg:py-0">
               <PhoneMockup />
             </div>
