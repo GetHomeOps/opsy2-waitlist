@@ -88,8 +88,19 @@ const TYPED_REPLY = [
 
 const TOPIC_KEYS = Object.keys(TOPICS);
 
-function wait(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function wait(ms, signal) {
+  return new Promise((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(new DOMException("Aborted", "AbortError"));
+      return;
+    }
+    const timer = setTimeout(resolve, ms);
+    const onAbort = () => {
+      clearTimeout(timer);
+      reject(new DOMException("Aborted", "AbortError"));
+    };
+    signal?.addEventListener("abort", onAbort, { once: true });
+  });
 }
 
 function StatusIcons() {
@@ -150,9 +161,8 @@ function MessageBubble({ message }) {
 export function PhoneMockup({ className = "" }) {
   const rootRef = useRef(null);
   const threadRef = useRef(null);
-  const runIdRef = useRef(0);
-  const startedRef = useRef(false);
   const playConvoRef = useRef(null);
+  const busyRef = useRef(false);
 
   const [messages, setMessages] = useState([]);
   const [typing, setTyping] = useState(false);
@@ -168,19 +178,20 @@ export function PhoneMockup({ className = "" }) {
   }, [messages, typing]);
 
   useEffect(() => {
-    async function playMsg(runId, message) {
-      if (runId !== runIdRef.current) return false;
+    const controller = new AbortController();
+    let started = false;
+    busyRef.current = false;
 
+    async function playMsg(message) {
       if (message.s === "them") {
         setTyping(true);
         await wait(
           Math.min(2200, 700 + (message.t ? message.t.length * 11 : 500)),
+          controller.signal,
         );
-        if (runId !== runIdRef.current) return false;
         setTyping(false);
       } else {
-        await wait(650);
-        if (runId !== runIdRef.current) return false;
+        await wait(650, controller.signal);
       }
 
       setMessages((prev) => [...prev, message]);
@@ -190,32 +201,43 @@ export function PhoneMockup({ className = "" }) {
           : message.t
             ? Math.min(1900, 600 + message.t.length * 8)
             : 1100,
+        controller.signal,
       );
-      return runId === runIdRef.current;
     }
 
     async function playConvo(convo) {
-      const runId = ++runIdRef.current;
+      if (busyRef.current) return;
+      busyRef.current = true;
       setChipsVisible(false);
       setChipsEnabled(false);
 
-      for (const message of convo) {
-        const ok = await playMsg(runId, message);
-        if (!ok) return;
+      try {
+        for (const message of convo) {
+          await playMsg(message);
+        }
+        if (!controller.signal.aborted) {
+          setChipsVisible(true);
+          setChipsEnabled(true);
+        }
+      } catch (error) {
+        if (error?.name !== "AbortError") throw error;
+        setTyping(false);
+      } finally {
+        busyRef.current = false;
       }
-
-      if (runId !== runIdRef.current) return;
-      setChipsVisible(true);
-      setChipsEnabled(true);
     }
 
     playConvoRef.current = playConvo;
 
     async function startOpener() {
-      if (startedRef.current) return;
-      startedRef.current = true;
-      await wait(700);
-      await playConvo(OPENER);
+      if (started || controller.signal.aborted) return;
+      started = true;
+      try {
+        await wait(700, controller.signal);
+        await playConvo(OPENER);
+      } catch (error) {
+        if (error?.name !== "AbortError") throw error;
+      }
     }
 
     const node = rootRef.current;
@@ -241,7 +263,7 @@ export function PhoneMockup({ className = "" }) {
     }
 
     return () => {
-      runIdRef.current += 1;
+      controller.abort();
       playConvoRef.current = null;
       observer?.disconnect();
       if (safetyTimer) clearTimeout(safetyTimer);
@@ -249,14 +271,16 @@ export function PhoneMockup({ className = "" }) {
   }, []);
 
   async function onChipClick(key) {
+    if (!chipsEnabled || busyRef.current) return;
+    const playConvo = playConvoRef.current;
+    if (!playConvo) return;
     setRemainingTopics((prev) => prev.filter((item) => item !== key));
-    await playConvoRef.current?.(TOPICS[key].convo);
+    await playConvo(TOPICS[key].convo);
   }
 
   async function onSend() {
     const value = draft.trim();
-    if (!value || sending) return;
-
+    if (!value || sending || busyRef.current) return;
     const playConvo = playConvoRef.current;
     if (!playConvo) return;
 
@@ -266,6 +290,8 @@ export function PhoneMockup({ className = "" }) {
     await playConvo(TYPED_REPLY);
     setSending(false);
   }
+
+  const inputLocked = sending || !chipsEnabled;
 
   return (
     <div
@@ -345,13 +371,13 @@ export function PhoneMockup({ className = "" }) {
                 placeholder="Message Opsy…"
                 autoComplete="off"
                 aria-label="Message Opsy"
-                disabled={sending}
+                disabled={inputLocked}
               />
               <button
                 type="button"
                 className="phone-demo__send"
                 onClick={onSend}
-                disabled={sending || !draft.trim()}
+                disabled={inputLocked || !draft.trim()}
                 aria-label="Send message"
               >
                 ↑

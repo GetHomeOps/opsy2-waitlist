@@ -282,6 +282,10 @@
 
 .phone-demo__chip:disabled {
   opacity: 0.35;
+  cursor: default;
+}
+
+.phone-demo__chips:not(.phone-demo__chips--show) .phone-demo__chip {
   pointer-events: none;
 }
 
