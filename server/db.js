@@ -7,6 +7,8 @@ export const landingTables = {
   reservations: "reservations",
   stripeEvents: "stripe_events",
   waitlist: "waitlist",
+  emailTemplates: "email_templates",
+  emailSends: "email_sends",
 };
 
 let client;

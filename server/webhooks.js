@@ -1,6 +1,6 @@
 import { getDb, dbError, landingTables } from "./db.js";
 import { getStripe } from "./stripe.js";
-import { PACKAGES } from "./packages.js";
+import { isAgentPackageKey } from "./packages.js";
 import {
   markCanceled,
   paidStatusFromSession,
@@ -29,7 +29,10 @@ async function markProcessed(event) {
 }
 
 async function isFoundingSession(session) {
-  if (session?.metadata?.product === "founding_transactions" && PACKAGES[session?.metadata?.package]) {
+  if (
+    session?.metadata?.product === "founding_transactions" &&
+    isAgentPackageKey(session?.metadata?.package)
+  ) {
     return true;
   }
   try {

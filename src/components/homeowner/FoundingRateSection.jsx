@@ -15,6 +15,7 @@ export function FoundingRateSection({ onLockRate }) {
   }, []);
 
   const cap = households?.cap ?? FOUNDING_HOUSEHOLD_CAP;
+  const amount = households && typeof households.amount === "number" ? households.amount : 1;
   const countLabel =
     households && typeof households.count === "number"
       ? `${households.count} of ${cap} Founding Households`
@@ -56,7 +57,7 @@ export function FoundingRateSection({ onLockRate }) {
               </div>
               <article className="flex h-full min-h-[320px] flex-col items-center rounded-[22px] border-2 border-ho-gold bg-white px-8 pb-9 pt-12 text-center">
                 <p className="font-serif text-[clamp(4.2rem,8vw,5.4rem)] font-semibold leading-none text-ho-forest">
-                  $99
+                  {`$${amount}`}
                 </p>
                 <p className="mt-3 text-[1rem] text-ho-forest/70">your entire first year</p>
                 <button
@@ -77,7 +78,7 @@ export function FoundingRateSection({ onLockRate }) {
                   STANDARD RATE
                 </p>
                 <p className="mt-6 font-serif text-[clamp(3.4rem,7vw,4.4rem)] font-semibold leading-none text-ho-forest">
-                  $199<span className="text-[0.42em] font-semibold">/yr</span>
+                  $10<span className="text-[0.42em] font-semibold">/yr</span>
                 </p>
                 <p className="mx-auto mt-5 max-w-[18rem] text-[0.95rem] leading-7 text-ho-forest/65">
                   expected after launch — subject to change. Your founding rate is
@@ -89,7 +90,7 @@ export function FoundingRateSection({ onLockRate }) {
         </div>
 
         <p className="mx-auto mt-12 max-w-[28rem] text-center text-[0.98rem] italic leading-7 text-ho-forest/60">
-          Reserve with your email only — you&apos;re charged at launch, not today.
+          {`Reserve your founding spot today for just $${amount}`}
         </p>
       </div>
     </section>

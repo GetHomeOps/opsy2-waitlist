@@ -7,8 +7,23 @@ import {
   setSessionCookie,
   verifyAdminPassword,
 } from "./auth.js";
-import { appUrl, hasStripe, hasSupabase } from "./env.js";
-import { catalogPricingPlans, isPackageKey, PACKAGE_KEYS, PACKAGES } from "./packages.js";
+import {
+  createEmailTemplate,
+  deleteEmailTemplate,
+  emailAdminPayload,
+  sendBroadcast,
+  sendTestEmail,
+  updateEmailTemplate,
+} from "./email.js";
+import { appUrl, hasSes, hasStripe, hasSupabase } from "./env.js";
+import {
+  AGENT_PACKAGE_KEYS,
+  catalogPricingPlans,
+  FOUNDING_CAPACITY,
+  isAgentPackageKey,
+  isPackageKey,
+  PACKAGES,
+} from "./packages.js";
 import {
   connectStripePrice,
   getPricingByKey,
@@ -19,6 +34,7 @@ import {
 } from "./pricing.js";
 import {
   confirmCheckoutSession,
+  countReservedTransactions,
   getReservation,
   listReservations,
   markDocsReceived,
@@ -42,13 +58,23 @@ app.get("/health", (c) =>
     ok: true,
     supabase: hasSupabase(),
     stripe: hasStripe(),
+    ses: hasSes(),
   }),
 );
 
 app.get("/founding-households", async (c) => {
   try {
     const count = await countHouseholds();
-    return c.json({ count, cap: FOUNDING_HOUSEHOLD_CAP });
+    let amount = PACKAGES.household?.fallbackPriceDollars ?? 1;
+    try {
+      if (hasSupabase()) {
+        const plan = await getPricingByKey("household");
+        if (plan?.displayPrice != null) amount = Number(plan.displayPrice);
+      }
+    } catch {
+      // Keep the catalog $1 fallback if the household plan is not in the database yet.
+    }
+    return c.json({ count, cap: FOUNDING_HOUSEHOLD_CAP, amount });
   } catch {
     return c.json({ error: "Count unavailable." }, 503);
   }
@@ -69,11 +95,20 @@ app.post("/founding-households", async (c) => {
   }
 });
 
+app.get("/founding-transactions", async (c) => {
+  try {
+    const count = await countReservedTransactions();
+    return c.json({ count, cap: FOUNDING_CAPACITY });
+  } catch {
+    return c.json({ error: "Count unavailable." }, 503);
+  }
+});
+
 app.get("/founding-pricing", async (c) => {
   try {
     if (!hasSupabase()) {
       return c.json(
-        PACKAGE_KEYS.map((key) => ({
+        AGENT_PACKAGE_KEYS.map((key) => ({
           key,
           transactionCount: PACKAGES[key].transactionCount,
           amount: PACKAGES[key].fallbackPriceDollars,
@@ -128,7 +163,7 @@ app.post("/founding-checkout", async (c) => {
     const email = field(body.email, 254).toLowerCase();
     const phone = field(body.phone, 40);
 
-    if (!isPackageKey(packageKey)) {
+    if (!isAgentPackageKey(packageKey)) {
       return c.json({ error: "Invalid package. Use one, three, or five." }, 400);
     }
     if (name.length < 2) {
@@ -388,6 +423,74 @@ app.patch("/admin/pricing/:packageKey", async (c) => {
     return c.json({ plan });
   } catch (error) {
     return c.json({ error: error.message }, 500);
+  }
+});
+
+app.get("/admin/emails", async (c) => {
+  const unauthorized = requireAdmin(c);
+  if (unauthorized) return unauthorized;
+  try {
+    return c.json(await emailAdminPayload());
+  } catch (error) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+app.post("/admin/emails", async (c) => {
+  const unauthorized = requireAdmin(c);
+  if (unauthorized) return unauthorized;
+  try {
+    const body = await c.req.json().catch(() => ({}));
+    const template = await createEmailTemplate(body);
+    return c.json({ template }, 201);
+  } catch (error) {
+    return c.json({ error: error.message }, error.status || 500);
+  }
+});
+
+app.patch("/admin/emails/:id", async (c) => {
+  const unauthorized = requireAdmin(c);
+  if (unauthorized) return unauthorized;
+  try {
+    const body = await c.req.json().catch(() => ({}));
+    const template = await updateEmailTemplate(c.req.param("id"), body);
+    return c.json({ template });
+  } catch (error) {
+    return c.json({ error: error.message }, error.status || 500);
+  }
+});
+
+app.delete("/admin/emails/:id", async (c) => {
+  const unauthorized = requireAdmin(c);
+  if (unauthorized) return unauthorized;
+  try {
+    await deleteEmailTemplate(c.req.param("id"));
+    return c.json({ ok: true });
+  } catch (error) {
+    return c.json({ error: error.message }, error.status || 500);
+  }
+});
+
+app.post("/admin/emails/:id/test", async (c) => {
+  const unauthorized = requireAdmin(c);
+  if (unauthorized) return unauthorized;
+  try {
+    const body = await c.req.json().catch(() => ({}));
+    const result = await sendTestEmail(c.req.param("id"), body.email);
+    return c.json(result);
+  } catch (error) {
+    return c.json({ error: error.message }, error.status || 500);
+  }
+});
+
+app.post("/admin/emails/:id/send", async (c) => {
+  const unauthorized = requireAdmin(c);
+  if (unauthorized) return unauthorized;
+  try {
+    const result = await sendBroadcast(c.req.param("id"));
+    return c.json(result);
+  } catch (error) {
+    return c.json({ error: error.message }, error.status || 500);
   }
 });
 

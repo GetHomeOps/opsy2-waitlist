@@ -1,4 +1,5 @@
 import { dbError, getDb, landingTables } from "./db.js";
+import { homeownerVars, sendRegistrationEmail } from "./email.js";
 import { hasSupabase } from "./env.js";
 
 export const FOUNDING_HOUSEHOLD_CAP = 250;
@@ -95,7 +96,7 @@ export async function registerHousehold(body) {
   const { data, error } = await db
     .from(landingTables.waitlist)
     .insert(row)
-    .select("id")
+    .select("id, email, market, buying_timeline")
     .single();
 
   if (error) {
@@ -110,6 +111,13 @@ export async function registerHousehold(body) {
     failed.status = 500;
     throw failed;
   }
+
+  await sendRegistrationEmail({
+    audience: HOMEOWNER_AUDIENCE,
+    to: data.email,
+    waitlistId: data.id,
+    vars: homeownerVars(data),
+  });
 
   return { id: data.id };
 }

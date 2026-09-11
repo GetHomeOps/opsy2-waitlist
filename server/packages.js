@@ -1,8 +1,9 @@
 export const FOUNDING_CAPACITY = 50;
 
-export const PACKAGES = {
+export const AGENT_PACKAGES = {
   one: {
     key: "one",
+    audience: "agent",
     transactionCount: 1,
     displayName: "One Transaction",
     tagline: "For your next closing",
@@ -11,6 +12,7 @@ export const PACKAGES = {
   },
   three: {
     key: "three",
+    audience: "agent",
     transactionCount: 3,
     displayName: "Three Transactions",
     tagline: "Most popular",
@@ -19,6 +21,7 @@ export const PACKAGES = {
   },
   five: {
     key: "five",
+    audience: "agent",
     transactionCount: 5,
     displayName: "Five Transactions",
     tagline: "Best value",
@@ -27,33 +30,63 @@ export const PACKAGES = {
   },
 };
 
+export const HOMEOWNER_PACKAGES = {
+  household: {
+    key: "household",
+    audience: "homeowner",
+    transactionCount: 1,
+    displayName: "Founding Household",
+    tagline: "Your entire first year",
+    fallbackPriceCents: 100,
+    fallbackPriceDollars: 1,
+  },
+};
+
+export const PACKAGES = { ...AGENT_PACKAGES, ...HOMEOWNER_PACKAGES };
+export const AGENT_PACKAGE_KEYS = Object.keys(AGENT_PACKAGES);
 export const PACKAGE_KEYS = Object.keys(PACKAGES);
 
 export function isPackageKey(value) {
   return Object.prototype.hasOwnProperty.call(PACKAGES, value);
 }
 
-export function catalogPricingPlans() {
-  return PACKAGE_KEYS.map((key) => {
-    const catalog = PACKAGES[key];
-    return {
-      id: null,
-      packageKey: key,
-      displayName: catalog.displayName,
-      tagline: catalog.tagline,
-      transactionCount: catalog.transactionCount,
-      displayPrice: catalog.fallbackPriceDollars,
-      displayPriceDollars: catalog.fallbackPriceDollars,
-      stripePriceId: null,
-      stripeAmount: null,
-      stripeAmountDollars: null,
-      stripeCurrency: "usd",
-      isActive: true,
-      lastSyncedAt: null,
-      connected: false,
-      matches: true,
-    };
+export function isAgentPackageKey(value) {
+  return Object.prototype.hasOwnProperty.call(AGENT_PACKAGES, value);
+}
+
+export function sortPricingPlans(plans) {
+  return [...plans].sort((left, right) => {
+    const leftAudience = left.audience === "homeowner" ? 1 : 0;
+    const rightAudience = right.audience === "homeowner" ? 1 : 0;
+    if (leftAudience !== rightAudience) return leftAudience - rightAudience;
+    return Number(left.transactionCount) - Number(right.transactionCount);
   });
+}
+
+export function catalogPricingPlans() {
+  return sortPricingPlans(
+    PACKAGE_KEYS.map((key) => {
+      const catalog = PACKAGES[key];
+      return {
+        id: null,
+        packageKey: key,
+        audience: catalog.audience,
+        displayName: catalog.displayName,
+        tagline: catalog.tagline,
+        transactionCount: catalog.transactionCount,
+        displayPrice: catalog.fallbackPriceDollars,
+        displayPriceDollars: catalog.fallbackPriceDollars,
+        stripePriceId: null,
+        stripeAmount: null,
+        stripeAmountDollars: null,
+        stripeCurrency: "usd",
+        isActive: true,
+        lastSyncedAt: null,
+        connected: false,
+        matches: true,
+      };
+    }),
+  );
 }
 
 export function centsToDollars(cents) {

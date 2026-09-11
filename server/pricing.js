@@ -1,6 +1,12 @@
 import { getDb, dbError, landingTables } from "./db.js";
 import { getStripe } from "./stripe.js";
-import { PACKAGES, PACKAGE_KEYS, centsToDollars, dollarsToCents } from "./packages.js";
+import {
+  PACKAGES,
+  PACKAGE_KEYS,
+  centsToDollars,
+  dollarsToCents,
+  sortPricingPlans,
+} from "./packages.js";
 
 function displayPriceDollars(row) {
   const catalog = PACKAGES[row.package_key];
@@ -42,6 +48,7 @@ function serializePlan(row) {
   return {
     id: row.id,
     packageKey: row.package_key,
+    audience: row.audience || catalog?.audience || "agent",
     displayName: row.display_name || catalog?.displayName,
     tagline: row.tagline || catalog?.tagline,
     transactionCount: row.transaction_count,
@@ -69,18 +76,15 @@ export async function listPricingPlans() {
   if (error) throw new Error(dbError(error));
   const rows = data || [];
   await healLegacyCentDisplayPrices(rows).catch(() => {});
-  return rows.map(serializePlan);
+  return sortPricingPlans(rows.map(serializePlan));
 }
 
 export async function getPublicPricing() {
   const plans = await listPricingPlans();
   return plans
-    .filter((plan) => plan.isActive)
+    .filter((plan) => plan.isActive && plan.audience !== "homeowner")
     .map((plan) => {
-      const amount =
-        plan.connected && plan.stripeAmount != null
-          ? centsToDollars(plan.stripeAmount)
-          : Number(plan.displayPrice);
+      const amount = Number(plan.displayPrice);
       return {
         key: plan.packageKey,
         transactionCount: plan.transactionCount,

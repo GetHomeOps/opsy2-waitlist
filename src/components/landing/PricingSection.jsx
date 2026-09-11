@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { fetchFoundingPricing } from "../../lib/checkout.js";
+import { fetchFoundingCount, fetchFoundingPricing } from "../../lib/checkout.js";
 import { backgroundFocus, backgrounds } from "../../config/backgrounds.js";
 import { CheckoutModal } from "./CheckoutModal.jsx";
 import { PricingCard } from "./PricingCard.jsx";
 import { SectionBackground } from "./SectionBackground.jsx";
+
+const FOUNDING_TRANSACTION_CAP = 50;
 
 const fallbackPlans = [
   {
@@ -33,6 +35,7 @@ const fallbackPlans = [
 export function PricingSection() {
   const [plans, setPlans] = useState(fallbackPlans);
   const [selectedPlan, setSelectedPlan] = useState(null);
+  const [founding, setFounding] = useState(null);
 
   useEffect(() => {
     fetchFoundingPricing().then((rows) => {
@@ -45,7 +48,15 @@ export function PricingSection() {
         }),
       );
     });
+    fetchFoundingCount().then((data) => {
+      if (!data) return;
+      setFounding(data);
+    });
   }, []);
+
+  const cap = founding?.cap ?? FOUNDING_TRANSACTION_CAP;
+  const reservedCount =
+    founding && typeof founding.count === "number" ? founding.count : null;
 
   return (
     <section id="pricing" aria-labelledby="pricing-heading">
@@ -60,11 +71,15 @@ export function PricingSection() {
         <div className="mx-auto flex min-h-[100svh] w-full max-w-[1200px] flex-col px-6 py-14 md:px-10 lg:min-h-[960px] lg:py-16">
           <h2
             id="pricing-heading"
-            className="rise-in text-center font-serif text-[clamp(2.4rem,5vw,4.1rem)] font-bold leading-[1.05] text-forest-deep"
+            className={
+              reservedCount !== null
+                ? "rise-in text-center font-serif text-[clamp(2.2rem,4.4vw,3.4rem)] font-bold leading-[1.1] text-forest-deep"
+                : "sr-only"
+            }
           >
-            Only 50 Founding
-            <br />
-            Transactions!
+            {reservedCount !== null
+              ? `${reservedCount} of ${cap} Founding Transactions`
+              : "Founding Transactions"}
           </h2>
 
           <div className="mx-auto mt-auto grid w-full max-w-[980px] grid-cols-1 gap-6 pt-12 md:grid-cols-3 md:items-stretch md:gap-5 lg:pt-16">

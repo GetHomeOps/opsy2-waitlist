@@ -1,9 +1,10 @@
 import { getDb, dbError, landingTables } from "./db.js";
-import { hasStripe, stripeDashboardBase } from "./env.js";
+import { agentVars, sendRegistrationEmail } from "./email.js";
+import { hasStripe, hasSupabase, stripeDashboardBase } from "./env.js";
 import {
   FOUNDING_CAPACITY,
   PACKAGES,
-  isPackageKey,
+  isAgentPackageKey,
   isPaidCheckoutStatus,
   isRefundEligible,
 } from "./packages.js";
@@ -87,6 +88,25 @@ function lineItemPriceId(item) {
 
 export function paidStatusFromSession(session) {
   return isPaidCheckoutStatus(session?.payment_status) ? "paid" : "pending";
+}
+
+export async function countReservedTransactions() {
+  if (!hasSupabase()) {
+    const error = new Error("Count unavailable.");
+    error.status = 503;
+    throw error;
+  }
+
+  const db = getDb();
+  const { data, error } = await db
+    .from(landingTables.reservations)
+    .select("quantity_reserved, payment_status")
+    .is("deleted_at", null);
+  if (error) throw new Error(dbError(error));
+
+  return (data || [])
+    .filter((row) => normalizeStatus(row.payment_status) === "paid")
+    .reduce((sum, row) => sum + Number(row.quantity_reserved || 0), 0);
 }
 
 export function computeKpis(rows) {
@@ -190,13 +210,15 @@ async function priceIdToPackageMap() {
   const plans = await listPricingPlans();
   const map = new Map();
   for (const plan of plans) {
-    if (plan.stripePriceId) map.set(plan.stripePriceId, plan.packageKey);
+    if (plan.stripePriceId && isAgentPackageKey(plan.packageKey)) {
+      map.set(plan.stripePriceId, plan.packageKey);
+    }
   }
   return map;
 }
 
 export async function resolvePackageKey(session, priceMap) {
-  if (isPackageKey(session?.metadata?.package)) return session.metadata.package;
+  if (isAgentPackageKey(session?.metadata?.package)) return session.metadata.package;
 
   let items = session?.line_items?.data;
   if (!items?.length && session?.id && hasStripe()) {
@@ -212,7 +234,7 @@ export async function resolvePackageKey(session, priceMap) {
   return map.get(priceId) || null;
 }
 
-export async function upsertFromCheckoutSession(session, paymentStatus) {
+export async function upsertFromCheckoutSession(session, paymentStatus, { notify = true } = {}) {
   const packageKey = await resolvePackageKey(session);
   const catalog = PACKAGES[packageKey];
   const email =
@@ -261,6 +283,7 @@ export async function upsertFromCheckoutSession(session, paymentStatus) {
   if (existing) {
     const alreadyCanceled = normalizeStatus(existing.payment_status) === "canceled" || existing.refunded_at;
     const nextStatus = alreadyCanceled ? "canceled" : requestedStatus;
+    const becamePaid = nextStatus === "paid" && normalizeStatus(existing.payment_status) !== "paid";
     const { error } = await db
       .from(landingTables.reservations)
       .update({
@@ -271,12 +294,31 @@ export async function upsertFromCheckoutSession(session, paymentStatus) {
       })
       .eq("id", existing.id);
     if (error) throw new Error(dbError(error));
+    if (notify && becamePaid) {
+      await sendAgentWelcome({ id: existing.id, ...row });
+    }
     return existing.id;
   }
 
-  const { error } = await db.from(landingTables.reservations).insert(row);
+  const { data, error } = await db
+    .from(landingTables.reservations)
+    .insert(row)
+    .select("id")
+    .single();
   if (error) throw new Error(dbError(error));
-  return true;
+  if (notify && requestedStatus === "paid") {
+    await sendAgentWelcome({ id: data.id, ...row });
+  }
+  return data.id;
+}
+
+async function sendAgentWelcome(row) {
+  await sendRegistrationEmail({
+    audience: "agent",
+    to: row.email,
+    reservationId: row.id,
+    vars: agentVars(row),
+  });
 }
 
 export async function confirmCheckoutSession(sessionId) {
@@ -332,6 +374,7 @@ export async function syncPaidCheckoutSessions() {
       const saved = await upsertFromCheckoutSession(
         { ...session, metadata: { ...session.metadata, package: packageKey } },
         "paid",
+        { notify: false },
       );
       if (saved) {
         imported += 1;

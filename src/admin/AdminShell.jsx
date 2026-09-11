@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { adminFetch } from "./lib/api.js";
 import { AdminBrand } from "./components/AdminBrand.jsx";
-import { IconArrowLeft, IconClose, IconHome, IconMenu, IconTag, IconUsers } from "./components/Icons.jsx";
+import { IconArrowLeft, IconClose, IconHome, IconMail, IconMenu, IconTag, IconUsers } from "./components/Icons.jsx";
 
 const nav = [
   { to: "/admin/waitlist", label: "Agents", icon: IconUsers },
   { to: "/admin/homeowners", label: "Homeowners", icon: IconHome },
+  { to: "/admin/emails", label: "Emails", icon: IconMail },
   { to: "/admin/pricing", label: "Pricing Plans", icon: IconTag },
 ];
 

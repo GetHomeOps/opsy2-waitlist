@@ -10,6 +10,7 @@
     "start": "node server/production.js"
   },
   "dependencies": {
+    "@aws-sdk/client-sesv2": "^3.1130.0",
     "@hono/node-server": "^2.1.1",
     "@supabase/supabase-js": "^2.116.0",
     "hono": "^4.13.7",

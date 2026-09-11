@@ -116,7 +116,7 @@ export function HomeownerWaitlistForm({ sectionRef, emailPrefill, focusToken }) 
             <p className="mx-auto mt-5 max-w-[28rem] text-[1.05rem] leading-8 text-white/85">
               {alreadyRegistered
                 ? "This email is already registered. Your founding household rate is locked — we'll be in touch before launch."
-                : "Your founding household rate is reserved. We'll be in touch before launch — no charge today."}
+                : "Your founding household rate is reserved. We'll be in touch before launch."}
             </p>
           </div>
         ) : (
@@ -129,7 +129,7 @@ export function HomeownerWaitlistForm({ sectionRef, emailPrefill, focusToken }) 
                 Join the Founding Households
               </h2>
               <p className="mt-4 text-[1rem] italic text-white/70">
-                No payment collected.
+                Reserve your founding spot today for just $1
               </p>
             </div>
 

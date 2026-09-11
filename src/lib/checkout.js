@@ -1,3 +1,18 @@
+export async function fetchFoundingCount() {
+  try {
+    const res = await fetch("/api/founding-transactions");
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (typeof data.count !== "number") return null;
+    return {
+      count: data.count,
+      cap: typeof data.cap === "number" ? data.cap : 50,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export async function fetchFoundingPricing() {
   try {
     const res = await fetch("/api/founding-pricing");

@@ -28,10 +28,10 @@ export function HeroSection() {
             <BrandLogo variant="light" />
 
             <h1 className="mt-10 font-serif text-[clamp(2.35rem,5.4vw,4.35rem)] font-semibold leading-[1.05] tracking-[-0.01em] md:mt-14">
-              The last closing gift that
+              The closing gift that
               <br />
               <em className="font-semibold italic text-cream">
-                actually keeps working
+                keeps working
               </em>
               <br />
               <em className="font-semibold italic text-cream">

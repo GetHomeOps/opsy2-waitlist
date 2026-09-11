@@ -7,7 +7,7 @@ const leftFaqs = [
   {
     question: "What does my client see during the transaction?",
     answer:
-      "Nothing. That's the point. Opsy works silently while the deal runs, so closing day lands as a genuine surprise — their entire home, already organized, from you.",
+      "Nothing. That's the point. Opsy works silently while the deal runs, so closing day lands as a genuine surprise — their entire home, already organized, from you at the most opportune time; when the relationship with their new home is just beginning.",
   },
   {
     question: "What if the deal dies?",
@@ -24,7 +24,7 @@ const rightFaqs = [
   },
   {
     question: "When does this start?",
-    answer: "Opsy 2.0 launches this October.",
+    answer: "Opsy 2.0 launches late 2026.",
   },
 ];
 

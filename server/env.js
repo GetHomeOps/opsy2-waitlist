@@ -10,6 +10,10 @@ export function hasStripe() {
   return Boolean(process.env.STRIPE_SECRET_KEY);
 }
 
+export function hasSes() {
+  return Boolean(process.env.SES_FROM_EMAIL);
+}
+
 export function isStripeTestMode() {
   return (process.env.STRIPE_SECRET_KEY || "").startsWith("sk_test_");
 }
