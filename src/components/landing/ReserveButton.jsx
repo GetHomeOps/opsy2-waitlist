@@ -24,14 +24,14 @@ export function ReserveButton({
   if (href) {
     return (
       <a href={href} className={classes} onClick={onClick}>
-        {children}
+        <span className="block w-full text-center">{children}</span>
       </a>
     );
   }
 
   return (
     <button type={type} className={classes} onClick={onClick}>
-      {children}
+      <span className="block w-full text-center">{children}</span>
     </button>
   );
 }

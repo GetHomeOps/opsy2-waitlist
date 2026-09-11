@@ -76,7 +76,7 @@ export function HomeownerHero({ onLockRate }) {
                   type="submit"
                   className="inline-flex h-14 w-full shrink-0 items-center justify-center rounded-full bg-ho-gold px-7 text-center text-[0.98rem] font-semibold tracking-wide text-ho-forest transition-[background-color,transform] duration-300 hover:bg-ho-gold-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white motion-safe:hover:scale-[1.02] sm:h-[3.65rem] sm:px-8 lg:w-auto"
                 >
-                  Lock the founding rate
+                  <span className="block w-full text-center">Lock the founding rate</span>
                 </button>
               </form>
             </div>

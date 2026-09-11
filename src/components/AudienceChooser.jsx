@@ -33,13 +33,13 @@ export function AudienceChooser() {
             to="/agents"
             className="inline-flex h-14 items-center justify-center rounded-full bg-forest px-8 text-center text-[1rem] font-semibold text-cream transition-colors hover:bg-forest-mid focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
           >
-            I&apos;m an agent
+            <span className="block w-full text-center">I&apos;m an agent</span>
           </Link>
           <Link
             to="/homeowners"
             className="inline-flex h-14 items-center justify-center rounded-full bg-gold px-8 text-center text-[1rem] font-semibold text-forest-deep transition-colors hover:bg-gold-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-deep"
           >
-            I&apos;m a homeowner
+            <span className="block w-full text-center">I&apos;m a homeowner</span>
           </Link>
         </div>
       </div>
