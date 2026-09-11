@@ -22,7 +22,7 @@ export const legalDocuments = {
       {
         heading: "Payments and refunds",
         paragraphs: [
-          "Any charge or deposit is shown before checkout. Agent transaction reservations are fully refundable until Opsy receives or begins processing the first documents for that transaction. To request a refund before then, reply “REFUND” to an Opsy message or email docs@heyopsy.com. We generally process approved refunds within 48 hours, although your bank may take longer to post the credit.",
+          "Any charge or deposit is shown before checkout. Agent transaction reservations are fully refundable until Opsy receives or begins processing the first documents for that transaction. To request a refund before then, reply “REFUND” to an Opsy message or email kino@heyopsy.com. We generally process approved refunds within 48 hours, although your bank may take longer to post the credit.",
           "If an agent transaction does not close, an unused reservation rolls to the agent’s next eligible transaction. Other founding-offer refund rights, if any, are the rights displayed at checkout or required by law.",
         ],
       },
@@ -42,7 +42,7 @@ export const legalDocuments = {
       {
         heading: "Questions",
         paragraphs: [
-          "Questions about a founding reservation may be sent to docs@heyopsy.com.",
+          "Questions about a founding reservation may be sent to kino@heyopsy.com.",
         ],
       },
     ],
@@ -95,7 +95,7 @@ export const legalDocuments = {
       {
         heading: "Contact us",
         paragraphs: [
-          "For privacy questions or requests, email docs@heyopsy.com.",
+          "For privacy questions or requests, email kino@heyopsy.com.",
         ],
       },
     ],
@@ -154,7 +154,7 @@ export const legalDocuments = {
       {
         heading: "Contact",
         paragraphs: [
-          "Questions about these terms may be sent to docs@heyopsy.com.",
+          "Questions about these terms may be sent to kino@heyopsy.com.",
         ],
       },
     ],
