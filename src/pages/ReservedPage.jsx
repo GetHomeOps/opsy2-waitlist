@@ -2,7 +2,9 @@ import { useEffect } from "react";
 import { BrandLogo } from "../components/landing/BrandLogo.jsx";
 import { ReserveButton } from "../components/landing/ReserveButton.jsx";
 
-export function ReservedPage() {
+export function ReservedPage({ audience = "agent" }) {
+  const isHomeowner = audience === "homeowner";
+
   useEffect(() => {
     const sessionId = new URLSearchParams(window.location.search).get("session_id");
     if (!sessionId) return;
@@ -22,10 +24,11 @@ export function ReservedPage() {
           You&apos;re reserved.
         </h1>
         <p className="mx-auto mt-5 max-w-[420px] text-[1.02rem] leading-7 text-forest-deep/75">
-          Your payment is confirmed and your Founding Transaction is reserved.
-          We&apos;ll follow up with next steps.
+          {isHomeowner
+            ? "Your $1 founding household rate is locked. We'll follow up with next steps."
+            : "Your payment is confirmed and your Founding Transaction is reserved. We'll follow up with next steps."}
         </p>
-        <ReserveButton href="/agents" variant="forest" className="mt-8">
+        <ReserveButton href={isHomeowner ? "/homeowners" : "/agents"} variant="forest" className="mt-8">
           Back to Opsy
         </ReserveButton>
       </div>

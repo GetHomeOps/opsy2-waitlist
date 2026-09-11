@@ -12,6 +12,7 @@ export default function App() {
         <Route path="/" element={<AudienceChooser />} />
         <Route path="/agents" element={<AgentReserveLanding />} />
         <Route path="/homeowners" element={<HomeownerLandingPage />} />
+        <Route path="/homeowners/reserved" element={<ReservedPage audience="homeowner" />} />
         <Route path="/reserved" element={<ReservedPage />} />
         <Route path="/admin/*" element={<AdminApp />} />
       </Routes>

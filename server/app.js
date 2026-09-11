@@ -45,9 +45,11 @@ import {
 import { getStripe } from "./stripe.js";
 import {
   countHouseholds,
+  confirmHouseholdSession,
   FOUNDING_HOUSEHOLD_CAP,
   listHouseholds,
-  registerHousehold,
+  startHouseholdCheckout,
+  upsertPaidHousehold,
 } from "./waitlist.js";
 import { processStripeWebhook } from "./webhooks.js";
 
@@ -83,10 +85,10 @@ app.get("/founding-households", async (c) => {
 app.post("/founding-households", async (c) => {
   try {
     const body = await c.req.json().catch(() => ({}));
-    const saved = await registerHousehold(body);
-    return c.json({ ok: true, id: saved.id });
+    const checkout = await startHouseholdCheckout(body, appUrl(c.req.raw));
+    return c.json({ url: checkout.url });
   } catch (error) {
-    const status = error.status || 500;
+    const status = error.status || error.statusCode || 500;
     const message =
       status >= 400 && status < 500 || status === 503
         ? error.message
@@ -230,7 +232,9 @@ app.post("/founding-checkout", async (c) => {
 app.post("/founding-confirm", async (c) => {
   try {
     const body = await c.req.json().catch(() => ({}));
-    const saved = await confirmCheckoutSession(body.session_id || body.sessionId);
+    const sessionId = body.session_id || body.sessionId;
+    const household = await confirmHouseholdSession(sessionId).catch(() => null);
+    const saved = household || (await confirmCheckoutSession(sessionId));
     return c.json({ ok: true, saved: Boolean(saved) });
   } catch (error) {
     const status = error.status || error.statusCode || 500;

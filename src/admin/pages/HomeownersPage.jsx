@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { buyingTimelines } from "../../config/homeowner.js";
 import { adminFetch } from "../lib/api.js";
-import { formatDate, formatPhone, initialsFromEmail } from "../lib/format.js";
+import { formatDate, formatPhone, formatUsd, initialsFromEmail } from "../lib/format.js";
 import {
   IconChart,
   IconCheck,
@@ -10,11 +10,11 @@ import {
   IconSort,
   IconUsers,
 } from "../components/Icons.jsx";
-import { YesNoPill } from "../components/StatusPills.jsx";
+import { StatusPill, YesNoPill } from "../components/StatusPills.jsx";
 import { HomeownerDrawer } from "../components/HomeownerDrawer.jsx";
 
 const PAGE_SIZE = 10;
-const TABLE_COLUMNS = 6;
+const TABLE_COLUMNS = 7;
 
 export function HomeownersPage() {
   const [users, setUsers] = useState([]);
@@ -78,7 +78,7 @@ export function HomeownersPage() {
             Homeowners
           </h1>
           <p className="mt-2 max-w-[42rem] text-[0.95rem] text-forest-deep/65">
-            Households who locked the founding rate. No payment is collected yet.
+            Households who paid $1 to lock the founding rate.
           </p>
         </header>
 
@@ -87,7 +87,7 @@ export function HomeownersPage() {
             icon={<IconUsers className="h-4 w-4" />}
             label="Founding Households"
             value={kpis ? String(kpis.waitlistSignups) : "—"}
-            hint="Registered homeowners."
+            hint="Paid founding households."
           />
           <KpiCard
             icon={<IconChart className="h-4 w-4" />}
@@ -177,6 +177,7 @@ export function HomeownersPage() {
                   <th className="px-4 py-3">Market</th>
                   <th className="px-4 py-3">Buying timeline</th>
                   <th className="px-4 py-3">SMS consent</th>
+                  <th className="px-4 py-3">Paid</th>
                   <th className="px-4 py-3">Joined</th>
                 </tr>
               </thead>
@@ -216,6 +217,14 @@ export function HomeownersPage() {
                       <td className="px-4 py-3">{user.buyingTimelineLabel}</td>
                       <td className="px-4 py-3">
                         <YesNoPill value={user.smsConsent} />
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-col gap-1">
+                          <StatusPill status={user.paymentStatus || "paid"} />
+                          <span className="text-forest-deep/60">
+                            {user.amountPaid == null ? "—" : formatUsd(user.amountPaid, { centsIfNeeded: true })}
+                          </span>
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-forest-deep/75">{formatDate(user.createdAt)}</td>
                     </tr>
@@ -289,6 +298,9 @@ function HomeownersSkeleton({ rows = 6 }) {
         </td>
         <td className="px-4 py-3">
           <Bone className="h-5 w-12 rounded-full" delay={delay + 120} />
+        </td>
+        <td className="px-4 py-3">
+          <Bone className="h-5 w-16 rounded-full" delay={delay + 130} />
         </td>
         <td className="px-4 py-3">
           <Bone className="h-3.5 w-24" delay={delay + 140} />

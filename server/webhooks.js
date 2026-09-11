@@ -7,6 +7,7 @@ import {
   resolvePackageKey,
   upsertFromCheckoutSession,
 } from "./reservations.js";
+import { upsertPaidHousehold } from "./waitlist.js";
 
 async function alreadyProcessed(eventId) {
   const db = getDb();
@@ -29,6 +30,7 @@ async function markProcessed(event) {
 }
 
 async function isFoundingSession(session) {
+  if (session?.metadata?.product === "founding_household") return true;
   if (
     session?.metadata?.product === "founding_transactions" &&
     isAgentPackageKey(session?.metadata?.package)
@@ -44,6 +46,12 @@ async function isFoundingSession(session) {
 
 async function handleCheckoutSession(session, forcedStatus) {
   if (!(await isFoundingSession(session))) return;
+  if (session?.metadata?.product === "founding_household") {
+    if ((forcedStatus || paidStatusFromSession(session)) === "paid") {
+      await upsertPaidHousehold(session);
+    }
+    return;
+  }
   await upsertFromCheckoutSession(session, forcedStatus || paidStatusFromSession(session));
 }
 

@@ -40,5 +40,8 @@ export async function registerHousehold(details) {
     error.status = res.status;
     throw error;
   }
+  if (data.url) {
+    window.location.href = data.url;
+  }
   return data;
 }
