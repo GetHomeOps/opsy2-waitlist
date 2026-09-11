@@ -118,7 +118,6 @@ export async function countReservedTransactions() {
 export function computeKpis(rows) {
   const signups = rows.length;
   const paid = rows.filter((row) => normalizeStatus(row.payment_status) === "paid");
-  const reservedAgents = paid.length;
   const reservedTransactions = paid.reduce((sum, row) => sum + transactionQuantity(row), 0);
   const revenueCents = paid.reduce((sum, row) => sum + Number(row.amount_paid || 0), 0);
   const remaining = Math.max(FOUNDING_CAPACITY - reservedTransactions, 0);
