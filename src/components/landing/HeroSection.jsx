@@ -31,20 +31,14 @@ export function HeroSection() {
               <BrandLogo variant="light" />
 
               <h1 className="mt-10 font-serif text-[clamp(2.35rem,5.4vw,4.35rem)] font-semibold leading-[1.05] tracking-[-0.01em] md:mt-14">
-                The closing{" "}
-                <span className="sm:whitespace-nowrap">
-                  <span className="whitespace-nowrap sm:whitespace-normal">
-                    gift
-                    <br className="hidden sm:block" />{" "}
-                    that
-                  </span>{" "}
+                <span className="block text-balance">
+                  The closing gift that{" "}
                   <em className="font-semibold italic text-cream">
                     keeps working
                   </em>
                 </span>
-                <br />
-                <em className="font-semibold italic text-cream">
-                  for you &amp; your&nbsp;clients
+                <em className="block text-balance font-semibold italic text-cream">
+                  for you &amp; your clients
                 </em>
               </h1>
 
