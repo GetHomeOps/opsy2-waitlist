@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { fetchFoundingCount, fetchFoundingPricing } from "../../lib/checkout.js";
 import { backgroundFocus, backgrounds } from "../../config/backgrounds.js";
 import { CheckoutModal } from "./CheckoutModal.jsx";
+import { FoundingProgressBar } from "./FoundingProgressBar.jsx";
 import { PricingCard } from "./PricingCard.jsx";
 import { SectionBackground } from "./SectionBackground.jsx";
 
@@ -69,18 +70,13 @@ export function PricingSection() {
         overlayClassName="bg-gradient-to-b from-transparent to-black/10"
       >
         <div className="mx-auto flex min-h-[100svh] w-full max-w-[1200px] flex-col px-6 py-14 md:px-10 lg:min-h-[960px] lg:py-16">
-          <h2
-            id="pricing-heading"
-            className={
-              reservedCount !== null
-                ? "rise-in text-center font-serif text-[clamp(2.2rem,4.4vw,3.4rem)] font-bold leading-[1.1] text-forest-deep"
-                : "sr-only"
-            }
-          >
-            {reservedCount !== null
-              ? `${reservedCount} of ${cap} Founding Transactions`
-              : "Founding Transactions"}
-          </h2>
+          {reservedCount !== null ? (
+            <FoundingProgressBar count={reservedCount} cap={cap} />
+          ) : (
+            <h2 id="pricing-heading" className="sr-only">
+              Founding Transactions
+            </h2>
+          )}
 
           <div className="mx-auto mt-auto grid w-full max-w-[980px] grid-cols-1 gap-6 pt-12 md:grid-cols-3 md:items-stretch md:gap-5 lg:pt-16">
             {plans.map((item) => (
