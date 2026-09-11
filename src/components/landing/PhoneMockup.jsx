@@ -105,6 +105,7 @@ function wait(ms, signal) {
 
 function StatusIcons() {
   return (
+<<<<<<< Updated upstream
     <span className="phone-demo__status-icons" aria-hidden="true">
       <svg width="18" height="12" viewBox="0 0 18 12">
         <rect x="0" y="7" width="3" height="5" rx="1" fill="#111" />
@@ -126,6 +127,19 @@ function StatusIcons() {
           rx="3.5"
           fill="none"
           stroke="#111"
+=======
+    <div className={className}>
+      <picture>
+        <source srcSet="/branding/phone-mockup.webp?v=5" type="image/webp" />
+        <img
+          src="/branding/phone-mockup.png?v=5"
+          alt="Text conversation with Opsy sharing the roof replacement date from an inspection report"
+          className="phone-cutout h-[min(52svh,480px)] w-auto max-w-[min(100%,280px)] object-contain sm:h-[min(58svh,560px)] sm:max-w-[340px] lg:h-[min(78svh,720px)] lg:max-w-[440px]"
+          width={476}
+          height={965}
+          decoding="async"
+          fetchPriority="high"
+>>>>>>> Stashed changes
         />
         <rect x="2.5" y="2.5" width="14" height="7" rx="1.8" fill="#111" />
         <rect x="22" y="3.8" width="2.4" height="4.4" rx="1.2" fill="#111" />
