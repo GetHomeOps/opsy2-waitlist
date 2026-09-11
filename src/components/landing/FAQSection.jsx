@@ -2,7 +2,7 @@ const leftFaqs = [
   {
     question: "What do I actually have to do?",
     answer:
-      "CC OPSY, kino@heyopsy.com when your deal goes mutual, and forward anything that arrives outside the thread. No client onboarding, no logins, no homework.",
+      "CC OPSY, docs@heyopsy.com when your deal goes mutual, and forward anything that arrives outside the thread. No client onboarding, no logins, no homework.",
   },
   {
     question: "What does my client see during the transaction?",

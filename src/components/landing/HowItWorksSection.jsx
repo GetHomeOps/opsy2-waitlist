@@ -5,7 +5,7 @@ const steps = [
   {
     step: "STEP 1",
     title: "Sell — well, CC Opsy!",
-    body: "At mutual acceptance, CC kino@heyopsy.com. That's the entire job. One address, one time, buyer's side only.",
+    body: "At mutual acceptance, CC docs@heyopsy.com. That's the entire job. One address, one time, buyer's side only.",
   },
   {
     step: "STEP 2",
