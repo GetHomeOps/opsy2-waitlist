@@ -90,6 +90,12 @@ export function paidStatusFromSession(session) {
   return isPaidCheckoutStatus(session?.payment_status) ? "paid" : "pending";
 }
 
+function transactionQuantity(row) {
+  const reserved = Number(row?.quantity_reserved || 0);
+  if (reserved > 0) return reserved;
+  return Number(PACKAGES[row?.package]?.transactionCount || 0);
+}
+
 export async function countReservedTransactions() {
   if (!hasSupabase()) {
     const error = new Error("Count unavailable.");
@@ -100,22 +106,22 @@ export async function countReservedTransactions() {
   const db = getDb();
   const { data, error } = await db
     .from(landingTables.reservations)
-    .select("quantity_reserved, payment_status")
+    .select("quantity_reserved, payment_status, package")
     .is("deleted_at", null);
   if (error) throw new Error(dbError(error));
 
   return (data || [])
     .filter((row) => normalizeStatus(row.payment_status) === "paid")
-    .reduce((sum, row) => sum + Number(row.quantity_reserved || 0), 0);
+    .reduce((sum, row) => sum + transactionQuantity(row), 0);
 }
 
 export function computeKpis(rows) {
   const signups = rows.length;
   const paid = rows.filter((row) => normalizeStatus(row.payment_status) === "paid");
   const reservedAgents = paid.length;
-  const reservedTransactions = paid.reduce((sum, row) => sum + Number(row.quantity_reserved || 0), 0);
+  const reservedTransactions = paid.reduce((sum, row) => sum + transactionQuantity(row), 0);
   const revenueCents = paid.reduce((sum, row) => sum + Number(row.amount_paid || 0), 0);
-  const remaining = Math.max(FOUNDING_CAPACITY - reservedAgents, 0);
+  const remaining = Math.max(FOUNDING_CAPACITY - reservedTransactions, 0);
 
   return {
     waitlistSignups: signups,
@@ -125,7 +131,7 @@ export function computeKpis(rows) {
     remainingTransactions: remaining,
     capacity: FOUNDING_CAPACITY,
     reservedPercent: FOUNDING_CAPACITY
-      ? Math.round((reservedAgents / FOUNDING_CAPACITY) * 100)
+      ? Math.round((reservedTransactions / FOUNDING_CAPACITY) * 100)
       : 0,
   };
 }
@@ -340,21 +346,35 @@ export async function confirmCheckoutSession(sessionId) {
   return upsertFromCheckoutSession(session, "paid");
 }
 
-async function knownCheckoutSessionIds() {
+async function settledCheckoutSessionIds() {
   const db = getDb();
   const { data, error } = await db
     .from(landingTables.reservations)
-    .select("stripe_checkout_session_id")
+    .select("stripe_checkout_session_id, payment_status, deleted_at")
     .not("stripe_checkout_session_id", "is", null);
   if (error) throw new Error(dbError(error));
-  return new Set((data || []).map((row) => row.stripe_checkout_session_id));
+
+  // Only skip sessions that are already paid (and not soft-deleted) or canceled.
+  // Pending rows must stay eligible so Stripe sync can mark them paid.
+  return new Set(
+    (data || [])
+      .filter((row) => {
+        if (row.deleted_at) return false;
+        const status = normalizeStatus(row.payment_status);
+        return status === "paid" || status === "canceled";
+      })
+      .map((row) => row.stripe_checkout_session_id),
+  );
 }
 
 export async function syncPaidCheckoutSessions() {
   if (!hasStripe()) return { imported: 0 };
 
   const stripe = getStripe();
-  const [priceMap, knownIds] = await Promise.all([priceIdToPackageMap(), knownCheckoutSessionIds()]);
+  const [priceMap, settledIds] = await Promise.all([
+    priceIdToPackageMap(),
+    settledCheckoutSessionIds(),
+  ]);
   let imported = 0;
   let startingAfter;
 
@@ -367,7 +387,7 @@ export async function syncPaidCheckoutSessions() {
 
     for (const session of page.data) {
       if (!isPaidCheckoutStatus(session.payment_status)) continue;
-      if (knownIds.has(session.id)) continue;
+      if (settledIds.has(session.id)) continue;
 
       const packageKey = await resolvePackageKey(session, priceMap);
       if (!packageKey) continue;
@@ -378,7 +398,7 @@ export async function syncPaidCheckoutSessions() {
       );
       if (saved) {
         imported += 1;
-        knownIds.add(session.id);
+        settledIds.add(session.id);
       }
     }
 
