@@ -26,7 +26,7 @@ export function HeroSection() {
         }
       >
         <div className="mx-auto grid w-full max-w-[1440px] grid-cols-1 lg:min-h-[860px] lg:grid-cols-2 lg:items-center lg:gap-6 lg:px-10 lg:py-12 xl:px-16">
-          <div className="px-6 py-8 md:px-10 lg:px-0 lg:py-0">
+          <div className="px-[20px] py-8 md:px-10 lg:px-0 lg:py-0">
             <div className="rise-in max-w-[560px] pt-2 text-cream">
               <BrandLogo variant="light" />
 
