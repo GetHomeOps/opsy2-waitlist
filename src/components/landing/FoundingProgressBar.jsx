@@ -4,16 +4,16 @@ export function FoundingProgressBar({ count, cap }) {
   const percent = Math.round((safeCount / safeCap) * 100);
 
   return (
-    <div className="rise-in mx-auto w-full max-w-[22rem] md:max-w-[26rem]">
+    <div className="rise-in mx-auto w-full max-w-[26rem] md:max-w-[32rem]">
       <h2
         id="pricing-heading"
-        className="text-center font-serif text-[clamp(1.55rem,3.2vw,2rem)] font-semibold leading-tight text-forest-deep"
+        className="text-center font-serif text-[clamp(1.7rem,3.4vw,2.25rem)] font-semibold leading-tight text-forest-deep"
       >
         Founding Transactions
       </h2>
 
       <div
-        className="mt-5 h-3 overflow-hidden rounded-full bg-forest-deep/15 md:mt-6 md:h-3.5"
+        className="mt-5 h-4 overflow-hidden rounded-full bg-forest-deep/20 shadow-[inset_0_1px_2px_rgba(24,55,47,0.12)] md:mt-6 md:h-[1.125rem]"
         role="progressbar"
         aria-valuemin={0}
         aria-valuemax={safeCap}
@@ -27,7 +27,7 @@ export function FoundingProgressBar({ count, cap }) {
         />
       </div>
 
-      <p className="mt-3 text-center font-serif text-[1.15rem] font-semibold tracking-wide text-forest-deep md:text-[1.25rem]">
+      <p className="mt-3.5 text-center font-serif text-[1.35rem] font-semibold tracking-wide text-forest-deep md:text-[1.5rem]">
         {safeCount} of {safeCap}
       </p>
     </div>
