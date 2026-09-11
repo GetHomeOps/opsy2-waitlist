@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from "react";
-import { buyingTimelines, smsConsentCopy } from "../../config/homeowner.js";
+import { buyingTimelines, HOUSEHOLD_DEPOSIT, smsConsentCopy } from "../../config/homeowner.js";
 import { registerHousehold } from "../../lib/waitlist.js";
 import { BrandLogo } from "../landing/BrandLogo.jsx";
 import { HomeownerFooter } from "./HomeownerFooter.jsx";
@@ -127,7 +127,7 @@ export function HomeownerWaitlistForm({ sectionRef, emailPrefill, focusToken }) 
                 Join the Founding Households
               </h2>
               <p className="mt-4 text-[1rem] italic text-white/70">
-                Reserve your founding spot today for just $1
+                {`Reserve your founding spot today for just a $${HOUSEHOLD_DEPOSIT} deposit`}
               </p>
             </div>
 

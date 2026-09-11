@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { BrandLogo } from "../components/landing/BrandLogo.jsx";
 import { ReserveButton } from "../components/landing/ReserveButton.jsx";
+import { HOUSEHOLD_FOUNDING_RATE } from "../config/homeowner.js";
 
 export function ReservedPage({ audience = "agent" }) {
   const isHomeowner = audience === "homeowner";
@@ -25,7 +26,7 @@ export function ReservedPage({ audience = "agent" }) {
         </h1>
         <p className="mx-auto mt-5 max-w-[420px] text-[1.02rem] leading-7 text-forest-deep/75">
           {isHomeowner
-            ? "Your $1 founding household rate is locked. We'll follow up with next steps."
+            ? `Your $${HOUSEHOLD_FOUNDING_RATE} founding household rate is locked. We'll follow up with next steps.`
             : "Your payment is confirmed and your Founding Transaction is reserved. We'll follow up with next steps."}
         </p>
         <ReserveButton href={isHomeowner ? "/homeowners" : "/agents"} variant="forest" className="mt-8">

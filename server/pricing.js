@@ -5,6 +5,7 @@ import {
   PACKAGE_KEYS,
   centsToDollars,
   dollarsToCents,
+  isDepositPackage,
   sortPricingPlans,
 } from "./packages.js";
 
@@ -12,6 +13,12 @@ function displayPriceDollars(row) {
   const catalog = PACKAGES[row.package_key];
   const raw = Number(row.display_price);
   if (catalog && raw === catalog.fallbackPriceCents) {
+    return catalog.fallbackPriceDollars;
+  }
+  if (
+    catalog?.audience === "homeowner" &&
+    (raw === catalog.depositDollars || raw === catalog.depositCents)
+  ) {
     return catalog.fallbackPriceDollars;
   }
   if (row.stripe_amount != null && Number(row.stripe_amount) === raw) {
@@ -40,8 +47,12 @@ function serializePlan(row) {
   const stripeAmount = row.stripe_amount ?? null;
   const displayPrice = displayPriceDollars(row);
   const connected = Boolean(row.stripe_price_id);
-  const matches =
-    connected && stripeAmount != null
+  const isDepositPlan = isDepositPackage(row.package_key);
+  const matches = isDepositPlan
+    ? !connected ||
+      stripeAmount == null ||
+      Number(stripeAmount) === Number(catalog?.depositCents)
+    : connected && stripeAmount != null
       ? dollarsToCents(displayPrice) === Number(stripeAmount)
       : true;
 
@@ -54,6 +65,9 @@ function serializePlan(row) {
     transactionCount: row.transaction_count,
     displayPrice,
     displayPriceDollars: Number(displayPrice),
+    standardPrice: catalog?.standardPriceDollars ?? null,
+    isDepositPlan,
+    depositDollars: catalog?.depositDollars ?? null,
     stripePriceId: row.stripe_price_id,
     stripeAmount,
     stripeAmountDollars: stripeAmount == null ? null : centsToDollars(stripeAmount),
@@ -119,18 +133,25 @@ async function retrieveStripeAmount(priceId) {
   return price;
 }
 
+function stripeSyncFields(price, { overwriteDisplayPrice = true } = {}) {
+  const fields = {
+    stripe_price_id: price.id,
+    stripe_amount: price.unit_amount,
+    stripe_currency: price.currency,
+    last_synced_at: new Date().toISOString(),
+  };
+  if (overwriteDisplayPrice) {
+    fields.display_price = centsToDollars(price.unit_amount);
+  }
+  return fields;
+}
+
 export async function connectStripePrice(packageKey, stripePriceId) {
   const price = await retrieveStripeAmount(stripePriceId);
   const db = getDb();
   const { data, error } = await db
     .from(landingTables.pricing)
-    .update({
-      stripe_price_id: price.id,
-      stripe_amount: price.unit_amount,
-      stripe_currency: price.currency,
-      display_price: centsToDollars(price.unit_amount),
-      last_synced_at: new Date().toISOString(),
-    })
+    .update(stripeSyncFields(price, { overwriteDisplayPrice: !isDepositPackage(packageKey) }))
     .eq("package_key", packageKey)
     .select("*")
     .single();
@@ -152,12 +173,9 @@ export async function syncConnectedPrices() {
     const db = getDb();
     const { data, error } = await db
       .from(landingTables.pricing)
-      .update({
-        stripe_amount: price.unit_amount,
-        stripe_currency: price.currency,
-        display_price: centsToDollars(price.unit_amount),
-        last_synced_at: new Date().toISOString(),
-      })
+      .update(
+        stripeSyncFields(price, { overwriteDisplayPrice: !isDepositPackage(plan.packageKey) }),
+      )
       .eq("package_key", plan.packageKey)
       .select("*")
       .single();

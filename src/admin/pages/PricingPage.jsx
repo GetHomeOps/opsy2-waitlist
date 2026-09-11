@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { adminFetch } from "../lib/api.js";
 import { formatDateTime, formatDollars, formatUsd } from "../lib/format.js";
+import { HOUSEHOLD_DEPOSIT, HOUSEHOLD_FOUNDING_RATE, HOUSEHOLD_STANDARD_RATE } from "../../config/homeowner.js";
 import { IconCheck, IconDoc, IconHome, IconRefresh, IconWarn, IconInfo } from "../components/Icons.jsx";
 
 const FALLBACK_PLANS = [
@@ -49,7 +50,10 @@ const FALLBACK_PLANS = [
     displayName: "Founding Household",
     tagline: "Your entire first year",
     transactionCount: 1,
-    displayPrice: 1,
+    displayPrice: 99,
+    standardPrice: 199,
+    isDepositPlan: true,
+    depositDollars: 1,
     stripePriceId: null,
     stripeAmount: null,
     lastSyncedAt: null,
@@ -99,6 +103,7 @@ function optionsForPlan(plan, prices) {
 
 function PlanCard({ plan, pricesLoading, savingKey, stripePrices, onConnect }) {
   const isHomeowner = planAudience(plan) === "homeowner";
+  const isDepositPlan = Boolean(plan.isDepositPlan || isHomeowner);
 
   return (
     <article className="overflow-hidden rounded-2xl border border-[#e6e0d4] bg-white shadow-[0_4px_14px_rgba(24,55,47,0.04)]">
@@ -116,7 +121,17 @@ function PlanCard({ plan, pricesLoading, savingKey, stripePrices, onConnect }) {
             </p>
             <p className="mt-3 font-serif text-[2.4rem] font-semibold leading-none">
               {formatDollars(plan.displayPrice)}
+              {isDepositPlan ? (
+                <span className="ml-1 font-serif text-[1.05rem] font-semibold text-forest-deep/45">
+                  /yr
+                </span>
+              ) : null}
             </p>
+            {isDepositPlan && plan.standardPrice != null ? (
+              <p className="mt-2 text-sm text-forest-deep/55">
+                Standard rate {formatDollars(plan.standardPrice)}/yr after launch.
+              </p>
+            ) : null}
             <p className="mt-2 text-sm text-[#b0893e]">{plan.tagline}</p>
           </div>
         </div>
@@ -153,7 +168,7 @@ function PlanCard({ plan, pricesLoading, savingKey, stripePrices, onConnect }) {
           </div>
 
           <label className="block text-[0.72rem] font-semibold text-forest-deep/45">
-            Stripe Amount
+            {isDepositPlan ? "Signup deposit" : "Stripe Amount"}
             <span className="mt-1.5 block rounded-xl border border-[#e6e0d4] bg-[#fbfaf6] px-3 py-2 font-serif text-lg font-semibold normal-case tracking-normal text-forest-deep">
               {plan.stripeAmount == null ? "—" : formatUsd(plan.stripeAmount, { centsIfNeeded: true })}
             </span>
@@ -165,10 +180,22 @@ function PlanCard({ plan, pricesLoading, savingKey, stripePrices, onConnect }) {
         </div>
       </div>
 
-      {plan.connected && plan.matches ? (
+      {plan.connected && plan.matches && isDepositPlan ? (
+        <div className="flex items-center gap-2 border-t border-[#dfe8e2] bg-[#eef5f0] px-5 py-2.5 text-sm text-[#215746]">
+          <IconCheck className="h-4 w-4" />
+          Landing page shows {formatDollars(plan.displayPrice)} founding vs{" "}
+          {formatDollars(plan.standardPrice)} standard. Stripe collects a{" "}
+          {formatUsd(plan.stripeAmount, { centsIfNeeded: true })} deposit at signup.
+        </div>
+      ) : plan.connected && plan.matches ? (
         <div className="flex items-center gap-2 border-t border-[#dfe8e2] bg-[#eef5f0] px-5 py-2.5 text-sm text-[#215746]">
           <IconCheck className="h-4 w-4" />
           Website display price matches Stripe amount ({formatUsd(plan.stripeAmount)}).
+        </div>
+      ) : plan.connected && isDepositPlan ? (
+        <div className="flex items-center gap-2 border-t border-[#eadfc6] bg-[#f8f1de] px-5 py-2.5 text-sm text-[#7a6128]">
+          <IconWarn className="h-4 w-4" />
+          {`Founding rate is ${formatDollars(plan.displayPrice)}, but Stripe is connected to ${formatUsd(plan.stripeAmount, { centsIfNeeded: true })} instead of the $${plan.depositDollars ?? 1} signup deposit.`}
         </div>
       ) : plan.connected ? (
         <div className="flex items-center gap-2 border-t border-[#eadfc6] bg-[#f8f1de] px-5 py-2.5 text-sm text-[#7a6128]">
@@ -332,10 +359,9 @@ export function PricingPage() {
       <div className="mt-6 flex gap-3 rounded-2xl border border-[#d7e2ea] bg-[#eef4f8] px-4 py-4 text-sm text-[#35586b]">
         <IconInfo className="mt-0.5 h-4 w-4 shrink-0" />
         <div>
-          <p className="font-semibold">Landing page pricing should match the connected Stripe prices.</p>
+          <p className="font-semibold">Agent plans should match Stripe. Homeowner checkout is a deposit.</p>
           <p className="mt-1 leading-6">
-            Make sure the prices displayed on your marketing site are the same as your Stripe
-            prices to avoid confusion for potential customers.
+            {`Agent landing prices should match the connected Stripe prices. The homeowner founding rate is ${formatDollars(HOUSEHOLD_FOUNDING_RATE)} vs a ${formatDollars(HOUSEHOLD_STANDARD_RATE)} standard rate; Stripe only collects a $${HOUSEHOLD_DEPOSIT} deposit at signup.`}
           </p>
         </div>
       </div>

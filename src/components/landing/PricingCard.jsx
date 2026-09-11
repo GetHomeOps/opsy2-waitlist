@@ -11,8 +11,8 @@ export function PricingCard({
   return (
     <div className="pricing-card relative pt-5">
       {featured ? (
-        <div className="absolute left-1/2 top-0 z-10 -translate-x-1/2">
-          <span className="inline-flex rounded-full bg-gold px-4 py-1 text-[0.68rem] font-bold tracking-[0.16em] text-forest-deep">
+        <div className="absolute inset-x-0 top-0 z-10 flex justify-center">
+          <span className="inline-flex whitespace-nowrap rounded-full bg-gold px-4 py-1 text-center text-[0.68rem] font-bold tracking-[0.16em] text-forest-deep">
             MOST RESERVED
           </span>
         </div>

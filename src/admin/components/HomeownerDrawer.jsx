@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { adminFetch } from "../lib/api.js";
+import { useState } from "react";
 import { formatDateTime, formatPhone, formatUsd, initialsFromEmail } from "../lib/format.js";
 import { IconClose, IconCopy } from "./Icons.jsx";
 import { YesNoPill } from "./StatusPills.jsx";
@@ -40,7 +39,10 @@ export function HomeownerDrawer({ user, onClose }) {
             {user.email}
           </h2>
           <p className="mt-2 text-sm text-forest-deep/55">
-            Founding household. {user.amountPaid == null ? "No charge recorded." : `Paid ${formatUsd(user.amountPaid, { centsIfNeeded: true })}.`}
+            Founding household.{" "}
+            {user.amountPaid == null
+              ? "No deposit recorded."
+              : `Paid a ${formatUsd(user.amountPaid, { centsIfNeeded: true })} deposit.`}
           </p>
         </div>
 
@@ -66,7 +68,7 @@ export function HomeownerDrawer({ user, onClose }) {
               <YesNoPill value={user.smsConsent} />
             </dd>
           </div>
-          <Row label="Paid" value={user.amountPaid == null ? "—" : formatUsd(user.amountPaid, { centsIfNeeded: true })} />
+          <Row label="Deposit" value={user.amountPaid == null ? "—" : formatUsd(user.amountPaid, { centsIfNeeded: true })} />
           <Row label="Joined" value={formatDateTime(user.purchasedAt || user.createdAt)} />
         </dl>
       </aside>

@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
-import { FOUNDING_HOUSEHOLD_CAP, homeownerAssets } from "../../config/homeowner.js";
+import {
+  FOUNDING_HOUSEHOLD_CAP,
+  HOUSEHOLD_DEPOSIT,
+  HOUSEHOLD_FOUNDING_RATE,
+  HOUSEHOLD_STANDARD_RATE,
+  homeownerAssets,
+} from "../../config/homeowner.js";
 import { fetchHouseholdCount } from "../../lib/waitlist.js";
 import { PictureBackdrop } from "./PictureBackdrop.jsx";
 import { Reveal } from "./Reveal.jsx";
@@ -15,7 +21,16 @@ export function FoundingRateSection({ onLockRate }) {
   }, []);
 
   const cap = households?.cap ?? FOUNDING_HOUSEHOLD_CAP;
-  const amount = households && typeof households.amount === "number" ? households.amount : 1;
+  const amount =
+    households && typeof households.amount === "number"
+      ? households.amount
+      : HOUSEHOLD_FOUNDING_RATE;
+  const standardAmount =
+    households && typeof households.standardAmount === "number"
+      ? households.standardAmount
+      : HOUSEHOLD_STANDARD_RATE;
+  const deposit =
+    households && typeof households.deposit === "number" ? households.deposit : HOUSEHOLD_DEPOSIT;
   const countLabel =
     households && typeof households.count === "number"
       ? `${households.count} of ${cap} Founding Households`
@@ -50,8 +65,8 @@ export function FoundingRateSection({ onLockRate }) {
         <div className="mx-auto mt-14 grid w-full max-w-[820px] grid-cols-1 gap-10 md:mt-16 md:grid-cols-2 md:items-stretch md:gap-8">
           <div className="ho-card-enter">
             <div className="pricing-card relative h-full pt-5">
-              <div className="absolute left-1/2 top-0 z-10 -translate-x-1/2">
-                <span className="inline-flex rounded-full bg-ho-gold px-4 py-1.5 text-[0.68rem] font-bold tracking-[0.16em] text-ho-forest">
+              <div className="absolute inset-x-0 top-0 z-10 flex justify-center">
+                <span className="inline-flex whitespace-nowrap rounded-full bg-ho-gold px-4 py-1.5 text-center text-[0.68rem] font-bold tracking-[0.16em] text-ho-forest">
                   FOUNDING HOUSEHOLD
                 </span>
               </div>
@@ -60,6 +75,9 @@ export function FoundingRateSection({ onLockRate }) {
                   {`$${amount}`}
                 </p>
                 <p className="mt-3 text-[1rem] text-ho-forest/70">your entire first year</p>
+                <p className="mt-2 text-[0.88rem] text-ho-forest/55">
+                  {`$${deposit} deposit today`}
+                </p>
                 <button
                   type="button"
                   onClick={onLockRate}
@@ -78,7 +96,8 @@ export function FoundingRateSection({ onLockRate }) {
                   STANDARD RATE
                 </p>
                 <p className="mt-6 font-serif text-[clamp(3.4rem,7vw,4.4rem)] font-semibold leading-none text-ho-forest">
-                  $10<span className="text-[0.42em] font-semibold">/yr</span>
+                  {`$${standardAmount}`}
+                  <span className="text-[0.42em] font-semibold">/yr</span>
                 </p>
                 <p className="mx-auto mt-5 max-w-[18rem] text-[0.95rem] leading-7 text-ho-forest/65">
                   expected after launch — subject to change. Your founding rate is
@@ -90,7 +109,7 @@ export function FoundingRateSection({ onLockRate }) {
         </div>
 
         <p className="mx-auto mt-12 max-w-[28rem] text-center text-[0.98rem] italic leading-7 text-ho-forest/60">
-          {`Reserve your founding spot today for just $${amount}`}
+          {`Reserve your founding spot today for just a $${deposit} deposit`}
         </p>
       </div>
     </section>

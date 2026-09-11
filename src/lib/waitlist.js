@@ -7,7 +7,9 @@ export async function fetchHouseholdCount() {
     return {
       count: data.count,
       cap: typeof data.cap === "number" ? data.cap : 250,
-      amount: typeof data.amount === "number" ? data.amount : 1,
+      amount: typeof data.amount === "number" ? data.amount : 99,
+      standardAmount: typeof data.standardAmount === "number" ? data.standardAmount : 199,
+      deposit: typeof data.deposit === "number" ? data.deposit : 1,
     };
   } catch {
     return null;

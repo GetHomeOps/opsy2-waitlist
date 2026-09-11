@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { buyingTimelines } from "../../config/homeowner.js";
+import { buyingTimelines, HOUSEHOLD_DEPOSIT, HOUSEHOLD_FOUNDING_RATE } from "../../config/homeowner.js";
 import { adminFetch } from "../lib/api.js";
 import { formatDate, formatPhone, formatUsd, initialsFromEmail } from "../lib/format.js";
 import {
@@ -78,7 +78,7 @@ export function HomeownersPage() {
             Homeowners
           </h1>
           <p className="mt-2 max-w-[42rem] text-[0.95rem] text-forest-deep/65">
-            Households who paid $1 to lock the founding rate.
+            {`Households who paid a $${HOUSEHOLD_DEPOSIT} deposit to lock the $${HOUSEHOLD_FOUNDING_RATE} founding rate.`}
           </p>
         </header>
 
@@ -87,7 +87,7 @@ export function HomeownersPage() {
             icon={<IconUsers className="h-4 w-4" />}
             label="Founding Households"
             value={kpis ? String(kpis.waitlistSignups) : "—"}
-            hint="Paid founding households."
+            hint={`Paid a $${HOUSEHOLD_DEPOSIT} deposit.`}
           />
           <KpiCard
             icon={<IconChart className="h-4 w-4" />}
@@ -177,7 +177,7 @@ export function HomeownersPage() {
                   <th className="px-4 py-3">Market</th>
                   <th className="px-4 py-3">Buying timeline</th>
                   <th className="px-4 py-3">SMS consent</th>
-                  <th className="px-4 py-3">Paid</th>
+                  <th className="px-4 py-3">Deposit</th>
                   <th className="px-4 py-3">Joined</th>
                 </tr>
               </thead>

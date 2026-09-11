@@ -67,16 +67,24 @@ app.get("/health", (c) =>
 app.get("/founding-households", async (c) => {
   try {
     const count = await countHouseholds();
-    let amount = PACKAGES.household?.fallbackPriceDollars ?? 1;
+    const catalog = PACKAGES.household;
+    const offer = {
+      amount: catalog?.fallbackPriceDollars ?? 99,
+      standardAmount: catalog?.standardPriceDollars ?? 199,
+      deposit: catalog?.depositDollars ?? 1,
+    };
     try {
       if (hasSupabase()) {
         const plan = await getPricingByKey("household");
-        if (plan?.displayPrice != null) amount = Number(plan.displayPrice);
+        if (plan?.displayPrice != null) offer.amount = Number(plan.displayPrice);
+        if (plan?.standardPrice != null) offer.standardAmount = Number(plan.standardPrice);
+        if (plan?.stripeAmountDollars != null) offer.deposit = Number(plan.stripeAmountDollars);
+        else if (plan?.depositDollars != null) offer.deposit = Number(plan.depositDollars);
       }
     } catch {
-      // Keep the catalog $1 fallback if the household plan is not in the database yet.
+      // Keep the catalog founding-rate fallback if the household plan is not in the database yet.
     }
-    return c.json({ count, cap: FOUNDING_HOUSEHOLD_CAP, amount });
+    return c.json({ count, cap: FOUNDING_HOUSEHOLD_CAP, ...offer });
   } catch {
     return c.json({ error: "Count unavailable." }, 503);
   }

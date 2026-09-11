@@ -188,7 +188,7 @@ export async function upsertPaidHousehold(session, { notify = true } = {}) {
   const smsConsent = session.metadata?.sms_consent === "true";
   const catalog = PACKAGES.household;
   const amountPaid =
-    session.amount_total == null ? catalog.fallbackPriceCents : session.amount_total;
+    session.amount_total == null ? catalog.depositCents : session.amount_total;
   const purchasedAt = new Date((session.created || Date.now() / 1000) * 1000).toISOString();
   const row = {
     audience: HOMEOWNER_AUDIENCE,

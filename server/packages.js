@@ -37,8 +37,11 @@ export const HOMEOWNER_PACKAGES = {
     transactionCount: 1,
     displayName: "Founding Household",
     tagline: "Your entire first year",
-    fallbackPriceCents: 100,
-    fallbackPriceDollars: 1,
+    fallbackPriceCents: 9900,
+    fallbackPriceDollars: 99,
+    standardPriceDollars: 199,
+    depositCents: 100,
+    depositDollars: 1,
   },
 };
 
@@ -52,6 +55,11 @@ export function isPackageKey(value) {
 
 export function isAgentPackageKey(value) {
   return Object.prototype.hasOwnProperty.call(AGENT_PACKAGES, value);
+}
+
+export function isDepositPackage(value) {
+  const key = typeof value === "string" ? value : value?.packageKey || value?.key;
+  return PACKAGES[key]?.audience === "homeowner";
 }
 
 export function sortPricingPlans(plans) {
@@ -76,6 +84,9 @@ export function catalogPricingPlans() {
         transactionCount: catalog.transactionCount,
         displayPrice: catalog.fallbackPriceDollars,
         displayPriceDollars: catalog.fallbackPriceDollars,
+        standardPrice: catalog.standardPriceDollars ?? null,
+        isDepositPlan: catalog.audience === "homeowner",
+        depositDollars: catalog.depositDollars ?? null,
         stripePriceId: null,
         stripeAmount: null,
         stripeAmountDollars: null,

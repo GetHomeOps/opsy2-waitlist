@@ -24,6 +24,9 @@ export const homeownerAssets = {
 };
 
 export const FOUNDING_HOUSEHOLD_CAP = 250;
+export const HOUSEHOLD_FOUNDING_RATE = 99;
+export const HOUSEHOLD_STANDARD_RATE = 199;
+export const HOUSEHOLD_DEPOSIT = 1;
 
 export const buyingTimelines = [
   { value: "in_contract", label: "In contract" },
