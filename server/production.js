@@ -14,6 +14,31 @@ if (!existsSync(path.join(distDir, "index.html"))) {
 }
 
 const server = new Hono();
+
+// Canonical host redirect: bounce the Railway default domain (*.up.railway.app)
+// to the custom Cloudflare domain so visitors never get stuck on the Railway URL
+// (e.g. clicking "Back to landing" from the admin dashboard). Scoped to browser
+// GET navigations and non-API paths, so Stripe webhooks (POST) and Railway's
+// health check (Host: healthcheck.railway.app) are left untouched.
+const CANONICAL_HOST = (process.env.CANONICAL_HOST || "heyopsy.com").trim();
+
+server.use("*", async (c, next) => {
+  const host = (c.req.header("host") || "").toLowerCase();
+  if (
+    c.req.method === "GET" &&
+    host.endsWith(".up.railway.app") &&
+    host !== CANONICAL_HOST &&
+    !c.req.path.startsWith("/api")
+  ) {
+    const target = new URL(c.req.url);
+    target.protocol = "https:";
+    target.host = CANONICAL_HOST;
+    target.port = "";
+    return c.redirect(target.toString(), 301);
+  }
+  return next();
+});
+
 server.route("/", api);
 server.use("*", serveStatic({ root: distDir }));
 server.get("*", serveStatic({ root: distDir, path: "index.html" }));
