@@ -16,11 +16,13 @@ if (!existsSync(path.join(distDir, "index.html"))) {
 const server = new Hono();
 
 // Canonical host redirect: bounce the Railway default domain (*.up.railway.app)
-// to the custom Cloudflare domain so visitors never get stuck on the Railway URL
-// (e.g. clicking "Back to landing" from the admin dashboard). Scoped to browser
-// GET navigations and non-API paths, so Stripe webhooks (POST) and Railway's
-// health check (Host: healthcheck.railway.app) are left untouched.
-const CANONICAL_HOST = (process.env.CANONICAL_HOST || "heyopsy.com").trim();
+// to the app's custom Cloudflare domain so visitors never get stuck on the
+// Railway URL (e.g. clicking "Back to landing" from the admin dashboard).
+// NOTE: this is the app domain (waitlist.heyopsy.com), NOT the marketing site
+// at heyopsy.com, which is a separate site without these routes. Scoped to
+// browser GET navigations and non-API paths, so Stripe webhooks (POST) and
+// Railway's health check (Host: healthcheck.railway.app) are left untouched.
+const CANONICAL_HOST = (process.env.CANONICAL_HOST || "waitlist.heyopsy.com").trim();
 
 server.use("*", async (c, next) => {
   const host = (c.req.header("host") || "").toLowerCase();
