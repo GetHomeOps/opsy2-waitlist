@@ -31,10 +31,17 @@ export function FoundingRateSection({ onLockRate }) {
       : HOUSEHOLD_STANDARD_RATE;
   const deposit =
     households && typeof households.deposit === "number" ? households.deposit : HOUSEHOLD_DEPOSIT;
+  const householdCount =
+    households && typeof households.count === "number" ? households.count : null;
   const countLabel =
-    households && typeof households.count === "number"
-      ? `${households.count} of ${cap} Founding Households`
+    householdCount !== null
+      ? `${householdCount} of ${cap} Founding Households`
       : `of ${cap} Founding Households`;
+  const safeCap = Math.max(1, cap);
+  const progressPercent =
+    householdCount === null
+      ? 0
+      : Math.round((Math.max(0, Math.min(householdCount, safeCap)) / safeCap) * 100);
 
   return (
     <section
@@ -60,6 +67,23 @@ export function FoundingRateSection({ onLockRate }) {
           <p className="mt-4 text-[1.02rem] tracking-wide text-ho-forest/70 md:text-[1.08rem]">
             {countLabel}
           </p>
+
+          {householdCount !== null ? (
+            <div
+              className="mx-auto mt-6 h-4 w-full max-w-[26rem] overflow-hidden rounded-full bg-ho-forest/15 shadow-[inset_0_1px_2px_rgba(31,88,68,0.14)] md:mt-7 md:h-[1.125rem] md:max-w-[30rem]"
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={safeCap}
+              aria-valuenow={householdCount}
+              aria-valuetext={`${householdCount} of ${safeCap} Founding Households`}
+              aria-label="Founding household progress"
+            >
+              <div
+                className="founding-progress-fill h-full rounded-full bg-ho-gold"
+                style={{ "--founding-progress": `${progressPercent}%` }}
+              />
+            </div>
+          ) : null}
         </Reveal>
 
         <div className="mx-auto mt-14 grid w-full max-w-[820px] grid-cols-1 gap-10 md:mt-16 md:grid-cols-2 md:items-stretch md:gap-8">

@@ -36,19 +36,19 @@ export const buyingTimelines = [
 
 export const homeownerFeatures = [
   {
-    title: "It remembers",
+    title: "Opsy remembers",
     body: "Your inspection report, warranties, receipts, and who fixed what — organized, searchable, and answered with sources when you ask.",
   },
   {
-    title: "It reminds",
+    title: "Opsy reminds",
     body: "What your home needs and when — the furnace before winter, the gutters before the rain — before small things become expensive ones.",
   },
   {
-    title: "It learns",
+    title: "Opsy learns",
     body: "The best companions evolve with you. Opsy understands you and your home's unique needs and builds a dynamic relationship over time.",
   },
   {
-    title: "It connects",
+    title: "Opsy connects",
     body: "Your trusted professionals, one text away. Opsy finds the right pro and can even draft the service request for you.",
   },
 ];

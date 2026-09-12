@@ -3,7 +3,7 @@ import { GetAccountCommand, SESv2Client, SendEmailCommand } from "@aws-sdk/clien
 let client;
 
 export function sesRegion() {
-  return process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || "us-east-2";
+  return process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || "us-east-1";
 }
 
 export function sesFromEmail() {

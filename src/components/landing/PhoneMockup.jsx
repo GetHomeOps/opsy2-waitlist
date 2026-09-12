@@ -27,7 +27,7 @@ const TOPICS = {
   warranty: {
     label: "What's under warranty?",
     convo: [
-      { s: "me", t: "What's still under warranty in this house?" },
+      { s: "me", t: "What's under warranty?" },
       {
         s: "them",
         t: "Your water heater — installed 2022 by Sound Plumbing Pros, 6-year manufacturer warranty, covered through 2028. The receipt with the model and serial number is in your Opsy portal:",
@@ -46,7 +46,7 @@ const TOPICS = {
   fall: {
     label: "What needs doing this fall?",
     convo: [
-      { s: "me", t: "What does the house need before winter?" },
+      { s: "me", t: "What needs doing this fall?" },
       {
         s: "them",
         t: "Two things on your Home Calendar: gutters are due for cleaning by Oct 2 — Northwest Roofing did them in February — and your furnace tune-up is due Nov 1. Cascade HVAC did the last one in May.",
@@ -61,7 +61,7 @@ const TOPICS = {
   plumbing: {
     label: "Who fixed the plumbing?",
     convo: [
-      { s: "me", t: "Remind me who we used for that drain issue?" },
+      { s: "me", t: "Who fixed the plumbing?" },
       {
         s: "them",
         t: "Sound Plumbing Pros — they snaked the guest bath drain on July 19. The invoice is in your Opsy portal, and they're due for a follow-up check September 23:",
