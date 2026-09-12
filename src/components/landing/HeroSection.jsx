@@ -27,8 +27,10 @@ export function HeroSection() {
       >
         <div className="mx-auto grid w-full max-w-[1440px] grid-cols-1 lg:min-h-[860px] lg:grid-cols-2 lg:items-center lg:gap-6 lg:px-10 lg:py-12 xl:px-16">
           <div className="px-[20px] py-8 md:px-10 lg:px-0 lg:py-0">
-            <div className="rise-in max-w-[560px] pt-2 text-cream">
-              <BrandLogo variant="light" />
+            <div className="rise-in mx-auto max-w-[560px] pt-2 text-center text-cream lg:mx-0 lg:text-left">
+              <div className="text-left">
+                <BrandLogo variant="light" />
+              </div>
 
               <h1 className="mt-10 font-serif text-[clamp(2.35rem,5.4vw,4.35rem)] font-semibold leading-[1.05] tracking-[-0.01em] md:mt-14">
                 <span className="block text-balance">
@@ -42,7 +44,7 @@ export function HeroSection() {
                 </em>
               </h1>
 
-              <p className="mt-6 max-w-[440px] text-[0.98rem] leading-7 text-cream/95 md:text-[1.02rem] md:leading-8">
+              <p className="mt-6 mx-auto max-w-[440px] text-[0.98rem] leading-7 text-cream/95 md:text-[1.02rem] md:leading-8 lg:mx-0">
                 CC one address when your deal goes mutual. On closing day,
                 your client gets their entire home — documents, warranties,
                 maintenance — organized and answerable by text and you stay
