@@ -1,5 +1,6 @@
 import { backgroundFocus, backgrounds } from "../../config/backgrounds.js";
 import { FAQContent, FAQSection } from "./FAQSection.jsx";
+import { FounderSection } from "./FounderSection.jsx";
 import { GuaranteeSection } from "./GuaranteeSection.jsx";
 import { HeroSection } from "./HeroSection.jsx";
 import { HowItWorksSection } from "./HowItWorksSection.jsx";
@@ -14,6 +15,7 @@ export function AgentReserveLanding() {
       <HowItWorksSection />
       <PricingSection />
       <GuaranteeSection />
+      <FounderSection />
       <FAQSection>
         <SectionBackground
           src={backgrounds.faq}

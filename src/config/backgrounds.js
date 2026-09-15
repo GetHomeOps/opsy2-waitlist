@@ -16,6 +16,10 @@ export const backgrounds = {
     jpg: "/backgrounds/guarantee.jpg",
     webp: "/backgrounds/guarantee.webp",
   },
+  founder: {
+    jpg: "/backgrounds/founder.jpg",
+    webp: "/backgrounds/founder.webp",
+  },
   faq: {
     jpg: "/backgrounds/faq.jpg",
     webp: "/backgrounds/faq.webp",
@@ -41,6 +45,11 @@ export const backgroundFocus = {
   guarantee: {
     mobile: "center 35%",
     tablet: "center center",
+    desktop: "center center",
+  },
+  founder: {
+    mobile: "30% center",
+    tablet: "35% center",
     desktop: "center center",
   },
   faq: {
