@@ -64,9 +64,9 @@ export function FounderSection() {
             </ReserveButton>
           </div>
 
-          <figure className="order-1 mx-auto w-full max-w-[26rem] lg:order-2 lg:max-w-none">
-            <div className="overflow-hidden rounded-[22px] ring-1 ring-cream/25 shadow-[0_18px_44px_rgba(12,28,23,0.45)]">
-              <picture>
+          <div className="order-1 mx-auto w-full max-w-[26rem] lg:order-2 lg:max-w-none">
+            <div className="overflow-hidden rounded-[22px] ring-1 ring-cream/25 shadow-[0_18px_44px_rgba(12,28,23,0.45)] lg:aspect-[9/10]">
+              <picture className="block h-full w-full">
                 <source
                   type="image/webp"
                   srcSet="/founder/founder-family-800.webp 800w, /founder/founder-family.webp 1440w"
@@ -79,16 +79,13 @@ export function FounderSection() {
                   alt="Kino Belden and his wife on the beach, laughing as they hold their two young daughters up in the air"
                   width={1440}
                   height={1413}
-                  className="block h-full w-full object-cover"
+                  className="block h-full w-full object-cover lg:object-[82%_center]"
                   loading="lazy"
                   decoding="async"
                 />
               </picture>
             </div>
-            <figcaption className="mt-4 text-center text-[0.86rem] italic leading-6 text-cream/75 lg:text-left">
-              Kino Belden, founder of Opsy, with his family.
-            </figcaption>
-          </figure>
+          </div>
         </div>
       </SectionBackground>
     </section>
