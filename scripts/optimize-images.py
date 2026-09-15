@@ -66,13 +66,24 @@ def main():
         (ROOT / "homeowner/homeowner-hero-aerial.jpg", ROOT / "homeowner/homeowner-hero-aerial", (800, 1600)),
         (ROOT / "homeowner/homeowner-pricing-background.jpg", ROOT / "homeowner/homeowner-pricing-background", (800, 1600)),
         (ROOT / "homeowner/homeowner-features-background.jpg", ROOT / "homeowner/homeowner-features-background", (800, 1600)),
+        (ROOT / "founder/founder-family.jpg", ROOT / "founder/founder-family", (800, 1440)),
     ]
     for source, stem, widths in photos:
         write_photo(source, stem, widths)
 
-    for name in ("hero", "how-it-works", "pricing", "guarantee", "faq"):
+    backgrounds = [
+        ("hero", 1448),
+        ("how-it-works", 1448),
+        ("pricing", 1448),
+        ("guarantee", 1448),
+        # Dense foliage barely responds to quality cuts, so the founder backdrop
+        # is capped narrower instead. It only ever shows under a heavy scrim.
+        ("founder", 1200),
+        ("faq", 1448),
+    ]
+    for name, width in backgrounds:
         source = ROOT / "backgrounds" / f"{name}.jpg"
-        write_photo(source, ROOT / "backgrounds" / name, (1448,))
+        write_photo(source, ROOT / "backgrounds" / name, (width,))
 
     write_transparent(
         ROOT / "homeowner/homeowner-phone-hero-tilted.png",
