@@ -32,14 +32,14 @@ export function FounderSection() {
           </>
         }
       >
-        <div className="mx-auto grid w-full max-w-[1240px] grid-cols-1 items-center gap-10 px-6 py-16 md:px-10 md:py-20 lg:min-h-[860px] lg:grid-cols-[minmax(0,1fr)_minmax(0,0.78fr)] lg:gap-16 lg:px-16">
-          <div className="rise-in order-2 max-w-[42rem] lg:order-1">
+        <div className="mx-auto grid w-full max-w-[1240px] grid-cols-1 items-center gap-10 px-6 py-16 md:px-10 md:py-20 lg:min-h-[860px] lg:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] lg:gap-14 lg:px-16 xl:gap-16">
+          <div className="rise-in order-2 max-w-[38rem] lg:order-1">
             <p className="text-[0.78rem] font-bold tracking-[0.28em] text-gold">
               MEET OUR FOUNDER
             </p>
             <h2
               id="founder-heading"
-              className="mt-4 font-serif text-[clamp(2.2rem,4.6vw,3.6rem)] font-semibold leading-[1.08] text-cream"
+              className="mt-4 text-balance font-serif text-[clamp(2.2rem,4.6vw,3.6rem)] font-semibold leading-[1.08] text-cream"
             >
               Aloha — I&apos;m{" "}
               <em className="font-semibold italic text-gold">Kino Belden</em>
